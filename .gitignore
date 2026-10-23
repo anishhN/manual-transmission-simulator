@@ -1,5 +1,6 @@
 # Packages / Archives
 *.zip
+*.bat
 
 # Operating System Files
 .DS_Store
