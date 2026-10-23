@@ -2,322 +2,1836 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Manual Transmission Lab — Engine & Gearbox Simulator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transmission Dynamics Studio — Automotive Powertrain Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#eef2f5;--panel:#ffffff;--panel2:#f4f7f9;--line:#d4dee6;--text:#172635;--muted:#637789;--cyan:#087f8c;--green:#19835f;--orange:#b8741b;--red:#bf4e4e}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% -10%,#ffffff 0,#eef2f5 55%);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-header{padding:22px max(20px,calc((100% - 1400px)/2));border-bottom:1px solid var(--line);background:#ffffffed;display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap}
-.eyebrow{color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}h1{font-size:clamp(23px,3vw,34px);margin:4px 0 2px;letter-spacing:-.04em}header p{margin:0;color:var(--muted)}.status{display:flex;align-items:center;gap:8px;color:var(--green);font-weight:700}.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
-main{max-width:1400px;margin:auto;padding:20px;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.85fr);gap:16px}.panel{background:linear-gradient(145deg,#121d29,#0e1621);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 18px 45px #0003}.panel-head{padding:15px 17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.panel-head h2{font-size:15px;margin:0}.panel-head span{color:var(--muted);font-size:12px}.panel-body{padding:17px}.visual{min-height:300px;background:radial-gradient(ellipse at center,#1b2d4b,#0e1728 70%);position:relative;display:flex;align-items:center;justify-content:center;padding:14px}
-svg{width:100%;height:auto;max-height:350px}.gear{fill:#192943;stroke:#6682aa;stroke-width:2}.gear-tooth{fill:#6682aa}.shaft{stroke:#a9bad8;stroke-width:7;stroke-linecap:round}.gear-label{fill:#edf3ff;font-size:14px;font-weight:700;text-anchor:middle}.small-label{fill:#9eacc8;font-size:11px;text-anchor:middle}.spin{transform-box:fill-box;transform-origin:center;animation:spin 2s linear infinite}.spin.slow{animation-duration:5s}.paused *{animation-play-state:paused!important}@keyframes spin{to{transform:rotate(360deg)}}
-.visual-note{position:absolute;bottom:12px;left:15px;color:var(--muted);font-size:11px;background:#0b1020b8;padding:6px 9px;border-radius:7px}
-.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:12px}.metric{background:#f8fafb;border:1px solid var(--line);border-radius:12px;padding:12px}.metric .name{font-size:11px;color:var(--muted)}.metric .value{font-size:clamp(19px,2vw,25px);font-weight:800;letter-spacing:-.04em;margin-top:4px}.metric .unit{font-size:11px;color:var(--muted);font-weight:500}.metric .hint{font-size:10px;color:var(--cyan);margin-top:3px}
-.controls{display:grid;grid-template-columns:1fr 1fr;gap:14px}.control{background:#10182a;border:1px solid var(--line);padding:12px;border-radius:11px}.control label{display:flex;justify-content:space-between;gap:10px;font-weight:650;margin-bottom:10px}.control output{color:var(--cyan);font-variant-numeric:tabular-nums}input[type=range]{width:100%;accent-color:var(--cyan)}select,button{font:inherit;color:var(--text);background:#ffffff;border:1px solid #c7d4de;border-radius:9px;padding:10px}select{width:100%}.pedals{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:13px}.pedal{background:#10182a;border:1px solid var(--line);border-radius:11px;padding:10px;text-align:center}.pedal button{width:100%;margin-top:7px;font-weight:800}.pedal button.active{background:#087f8c;border-color:var(--cyan);color:#fff}.pedal small{color:var(--muted)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.actions button{cursor:pointer}.primary{background:#087f8c;border-color:#087f8c;color:#fff;font-weight:800}.warning{background:#4a292b;border-color:#85464b}.chart-wrap{padding:10px 14px 14px}.chart-wrap canvas{width:100%;height:210px;display:block}.chart-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:11px;padding:0 3px 8px}.key{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}.note{color:var(--muted);font-size:12px}.full{grid-column:1/-1}.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.table td,.table th{text-align:left;padding:9px 5px;border-bottom:1px solid var(--line)}.table th{color:var(--muted);font-size:11px;font-weight:600}.table td:last-child,.table th:last-child{text-align:right}.pill{padding:4px 8px;border-radius:99px;background:#e3f4ed;color:#176f52;font-size:11px;font-weight:700}.footer{max-width:1400px;margin:0 auto;padding:0 20px 22px;color:var(--muted);font-size:11px}
+:root {
+  --bg-main: #080B12;
+  --bg-secondary: #0D121C;
+  --panel: #111827;
+  --panel-elevated: #172131;
+  --border: #263244;
+  --border-subtle: #1E293B;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --accent-teal: #22D3C5;
+  --accent-blue: #60A5FA;
+  --warning: #FBBF24;
+  --critical: #F87171;
+  --success: #34D399;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
 
-.viewport-shell{background:radial-gradient(ellipse at 48% 45%,#1b3040 0,#0c151f 67%);position:relative}
-.viewport-toolbar{height:46px;display:flex;align-items:center;gap:14px;padding:0 15px;border-bottom:1px solid #293a49;background:#0b141eaa;position:relative;z-index:2;flex-wrap:wrap}
-.live-tag{font-size:10px;letter-spacing:.13em;font-weight:800;color:#9bdce4;display:flex;align-items:center;gap:7px}.live-tag i{width:7px;height:7px;border-radius:50%;background:#65d3b0;box-shadow:0 0 10px #65d3b080}
-#modelMode{font-size:10px;letter-spacing:.1em;color:#8398a9}.view-actions{margin-left:auto;display:flex;gap:6px}.view-actions button{font-size:11px;padding:5px 9px;background:#f5f8fa;border-color:#cbd7df;color:#33495a;cursor:pointer}
-#threeViewport{height:410px;position:relative;overflow:hidden;touch-action:pan-y}.viewport-footer{display:flex;justify-content:space-between;padding:9px 15px;border-top:1px solid #293a49;color:#8398a9;font-size:10px;letter-spacing:.04em;background:#0b141eaa}
-#threeViewport canvas{display:block;width:100%;height:100%;outline:none}.loading3d{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#b9cbd8;font-size:12px;z-index:1;background:#0c151f}.loading3d span{color:#758a9c;font-size:11px}.loader{width:30px;height:30px;border:2px solid #294353;border-top-color:#58c4d8;border-radius:50%;animation:loadspin .8s linear infinite}@keyframes loadspin{to{transform:rotate(360deg)}}
-.metric{background:linear-gradient(145deg,#111d29,#0e1721);border-color:#253849}.metric .value{font-variant-numeric:tabular-nums}.panel-head{background:#f8fafb}.panel-head h2{letter-spacing:.02em}.control{background:#0e1822;border-color:#253747}.control input{cursor:pointer}.actions button,.pedal button{cursor:pointer;transition:filter .15s,transform .15s}.actions button:hover,.pedal button:hover,.view-actions button:hover{filter:brightness(1.18)}.actions button:active,.pedal button:active{transform:translateY(1px)}
-@media(max-width:600px){#threeViewport{height:300px}.viewport-toolbar{height:auto;min-height:46px;padding:9px;gap:8px}.viewport-footer{font-size:9px}.view-actions button{padding:5px}}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-@media(max-width:900px){main{grid-template-columns:1fr}.full{grid-column:auto}.bottom-grid{grid-template-columns:1fr}}@media(max-width:540px){main{padding:10px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.controls{grid-template-columns:1fr}.panel-body{padding:12px}.visual{min-height:220px}}
+body {
+  background-color: var(--bg-main);
+  background-image: 
+    radial-gradient(ellipse 90% 45% at 50% -10%, rgba(34, 211, 197, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 50% at 90% 100%, rgba(96, 165, 250, 0.03) 0%, transparent 70%);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header */
+header {
+  border-bottom: 1px solid var(--border);
+  background: rgba(13, 18, 28, 0.92);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 12px 24px;
+}
+.header-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #172635 0%, #0F172A 100%);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-teal);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.brand-text h1 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.badge-version {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(34, 211, 197, 0.12);
+  color: var(--accent-teal);
+  border: 1px solid rgba(34, 211, 197, 0.25);
+  font-family: var(--font-mono);
+}
+.brand-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: rgba(17, 24, 39, 0.8);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-teal);
+  box-shadow: 0 0 10px var(--accent-teal);
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+.btn:hover {
+  background: var(--panel-elevated);
+  border-color: #3b4d66;
+  color: #fff;
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn-primary {
+  background: linear-gradient(135deg, #103b44 0%, #0d2b32 100%);
+  border-color: var(--accent-teal);
+  color: var(--accent-teal);
+}
+.btn-primary:hover {
+  background: var(--accent-teal);
+  color: #080B12;
+  box-shadow: 0 4px 14px rgba(34, 211, 197, 0.25);
+}
+
+/* Main Dashboard Container */
+main {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Top KPI Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 12px;
+}
+.kpi-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.2s, transform 0.2s;
+}
+.kpi-card:hover {
+  border-color: #3b4d66;
+  transform: translateY(-2px);
+}
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--border);
+}
+.kpi-card.accent-teal::before { background: var(--accent-teal); }
+.kpi-card.accent-blue::before { background: var(--accent-blue); }
+.kpi-card.accent-amber::before { background: var(--warning); }
+.kpi-card.accent-emerald::before { background: var(--success); }
+
+.kpi-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.kpi-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 8px 0 6px;
+}
+.kpi-value {
+  font-family: var(--font-mono);
+  font-size: 23px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+.kpi-unit {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.kpi-progress {
+  width: 100%;
+  height: 3px;
+  background: var(--border-subtle);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.kpi-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--accent-teal);
+  transition: width 0.3s ease;
+}
+.kpi-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Two Column Central Workspace */
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(360px, 0.95fr);
+  gap: 20px;
+}
+
+/* Generic Panel Styling */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+.panel-header {
+  padding: 12px 18px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.panel-header h2 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-header h2 span {
+  color: var(--text-primary);
+}
+.panel-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--panel-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.panel-body {
+  padding: 18px;
+}
+
+/* 3D Viewport Panel */
+.viewport-wrapper {
+  position: relative;
+  background: #06090F;
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+}
+.viewport-toolbar {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  background: rgba(13, 18, 28, 0.85);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.view-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent-teal);
+  font-size: 11px;
+}
+.view-tag i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-teal);
+  box-shadow: 0 0 8px var(--accent-teal);
+}
+.view-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-sm {
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 5px;
+  background: rgba(23, 33, 49, 0.7);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-sm:hover {
+  background: var(--panel-elevated);
+  color: var(--text-primary);
+  border-color: #3b4d66;
+}
+.btn-sm.active {
+  background: rgba(34, 211, 197, 0.15);
+  border-color: var(--accent-teal);
+  color: var(--accent-teal);
+}
+
+#threeViewport {
+  height: 480px;
+  position: relative;
+  outline: none;
+  cursor: grab;
+}
+#threeViewport:active {
+  cursor: grabbing;
+}
+#threeViewport canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: #080B12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  z-index: 10;
+}
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent-teal);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.viewport-footer {
+  padding: 8px 14px;
+  background: rgba(13, 18, 28, 0.9);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.viewport-footer span:last-child {
+  color: var(--accent-teal);
+  font-weight: 600;
+}
+
+/* Controls Panel */
+.controls-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.control-group-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.control-group-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+/* Tactical Gear Shifter */
+.gear-selector-block {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+}
+.gear-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+}
+.gear-btn {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 4px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.gear-btn small {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.gear-btn:hover {
+  background: var(--panel-elevated);
+  border-color: #3b4d66;
+  color: #fff;
+}
+.gear-btn.active {
+  background: linear-gradient(145deg, #122c36 0%, #0d212a 100%);
+  border-color: var(--accent-teal);
+  color: var(--accent-teal);
+  box-shadow: 0 0 12px rgba(34, 211, 197, 0.25);
+}
+.gear-btn.active small {
+  color: #72e5dc;
+}
+/* Hidden fallback native select for accessibility & automation */
+#gear { display: none; }
+
+/* Automotive Pedal Switchboard */
+.pedal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.pedal-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+.pedal-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.pedal-status {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.pedal-btn {
+  width: 100%;
+  padding: 8px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.pedal-btn:hover {
+  background: var(--panel-elevated);
+  border-color: #3b4d66;
+}
+.pedal-btn.active {
+  background: rgba(34, 211, 197, 0.15);
+  border-color: var(--accent-teal);
+  color: var(--accent-teal);
+}
+#brakeBtn.active {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: var(--critical);
+  color: var(--critical);
+}
+#ignitionBtn.active {
+  background: rgba(34, 211, 197, 0.15);
+  border-color: var(--accent-teal);
+  color: var(--accent-teal);
+}
+
+/* Range Sliders */
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.slider-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.slider-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.slider-readout {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-teal);
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #E2E8F0;
+  border: 2px solid var(--accent-teal);
+  box-shadow: 0 0 8px rgba(34, 211, 197, 0.4);
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #FFF;
+}
+
+/* Quick Presets */
+.presets-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.preset-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.preset-chip:hover {
+  background: var(--panel-elevated);
+  border-color: var(--accent-teal);
+  color: var(--accent-teal);
+}
+
+/* Charts Section */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.chart-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+.chart-canvas-wrap {
+  padding: 12px 16px 14px;
+  position: relative;
+}
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+canvas.telemetry-chart {
+  width: 100%;
+  height: 200px;
+  display: block;
+  border-radius: 6px;
+  background: #080C14;
+}
+
+/* Engineering Table Section */
+.tables-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 20px;
+}
+.table-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+.eng-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.eng-table th {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.eng-table th:last-child {
+  text-align: right;
+}
+.eng-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.eng-table tr:hover td {
+  background: rgba(23, 33, 49, 0.4);
+}
+.eng-table td:first-child {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.eng-table td:last-child {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent-teal);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Reference & Provenance */
+.notes-card {
+  padding: 14px 18px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.notes-card a {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+.notes-card a:hover {
+  text-decoration: underline;
+}
+
+/* Footer */
+footer {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 24px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1100px) {
+  .workspace-grid { grid-template-columns: 1fr; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .tables-grid { grid-template-columns: 1fr; }
+  #threeViewport { height: 380px; }
+}
+
+@media (max-width: 650px) {
+  main { padding: 12px 14px 30px; }
+  .header-inner { padding: 4px 0; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .gear-grid { grid-template-columns: repeat(4, 1fr); }
+  #threeViewport { height: 300px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
 </style>
 </head>
 <body>
+
 <header>
- <div><div class="eyebrow">Interactive engineering lab</div><h1>Transmission Dynamics Studio</h1><p>Interactive powertrain model · Gear selection · Thermal & vibration analytics</p></div>
- <div class="status"><span class="dot" id="statusDot"></span><span id="runStatus">SIMULATION RUNNING</span></div>
+  <div class="header-inner">
+    <div class="brand-group">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>Transmission Dynamics Studio <span class="badge-version">PRO v2.4</span></h1>
+        <div class="brand-subtitle">Powertrain Telemetry & 5-Speed Transaxle Digital Twin · Yanmar 2GM20F Benchmark</div>
+      </div>
+    </div>
+
+    <div class="status-pill">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="runStatus">SIMULATION RUNNING</span>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn" id="pauseBtn" title="Toggle simulation run state">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+        Pause
+      </button>
+      <button class="btn" id="resetBtn" title="Reset all inputs to nominal defaults">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+        Reset
+      </button>
+      <button class="btn btn-primary" id="csvBtn" title="Export session data as CSV">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Export CSV
+      </button>
+    </div>
+  </div>
 </header>
+
 <main>
- <section class="panel">
-  <div class="panel-head"><h2>01 / Interactive 3D powertrain</h2><span>Reference diesel · 5-speed demonstrator</span></div>
-  <div class="viewport-shell">
-    <div class="viewport-toolbar">
-      <span class="live-tag"><i></i> LIVE POWERTRAIN MODEL</span>
-      <span id="modelMode">YANMAR 2GM20F DATA · GENERIC GEARSET</span>
-      <div class="view-actions"><button id="rotateBtn" title="Toggle auto rotation">Auto rotate</button><button id="resetViewBtn" title="Reset camera">Reset view</button></div>
+  <!-- Top KPI Telemetry Grid -->
+  <section class="kpi-grid">
+    <div class="kpi-card accent-teal">
+      <div class="kpi-label">Engine Speed <span>CRANKSHAFT</span></div>
+      <div class="kpi-value-row">
+        <span class="kpi-value" id="mEngine">1,500</span>
+        <span class="kpi-unit">rpm</span>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" id="barEngine" style="width: 41%;"></div></div>
+      <div class="kpi-hint"><span>Idle: 700</span><span>Max: 3600</span></div>
     </div>
-    <div id="threeViewport" aria-label="Interactive 3D manual transmission model">
-      <div class="loading3d" id="loading3d"><div class="loader"></div><strong>Preparing 3D gearbox</strong><span>Loading interactive engineering model…</span></div>
+
+    <div class="kpi-card accent-blue">
+      <div class="kpi-label">Gearbox Output <span>DRIVESHAFT</span></div>
+      <div class="kpi-value-row">
+        <span class="kpi-value" id="mOutput">1,071</span>
+        <span class="kpi-unit">rpm</span>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" id="barOutput" style="width: 28%; background: var(--accent-blue);"></div></div>
+      <div class="kpi-hint"><span>Ratio x FD</span><span id="kpiGearRatio">1.40:1</span></div>
     </div>
-    <div class="viewport-footer"><span>Drag to orbit · Scroll to zoom</span><span id="selectedGearLabel">Selected: 3rd gear</span></div>
+
+    <div class="kpi-card accent-teal">
+      <div class="kpi-label">Engine Torque <span>BRAKE LOAD</span></div>
+      <div class="kpi-value-row">
+        <span class="kpi-value" id="mTorque">31.2</span>
+        <span class="kpi-unit">N·m</span>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" id="barTorque" style="width: 85%;"></div></div>
+      <div class="kpi-hint"><span>Rated: 33.1</span><span>Peak: 35.5</span></div>
+    </div>
+
+    <div class="kpi-card accent-blue">
+      <div class="kpi-label">Shaft Power <span>DELIVERED</span></div>
+      <div class="kpi-value-row">
+        <span class="kpi-value" id="mPower">4.9</span>
+        <span class="kpi-unit">kW</span>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" id="barPower" style="width: 42%; background: var(--accent-blue);"></div></div>
+      <div class="kpi-hint"><span>Continuous</span><span>11.8 kW</span></div>
+    </div>
+
+    <div class="kpi-card accent-emerald">
+      <div class="kpi-label">Coolant Temp <span>HEAD / JACKET</span></div>
+      <div class="kpi-value-row">
+        <span class="kpi-value" id="mCoolant">82</span>
+        <span class="kpi-unit">°C</span>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" id="barCoolant" style="width: 68%; background: var(--success);"></div></div>
+      <div class="kpi-hint"><span>Thermal Lag</span><span>Normal</span></div>
+    </div>
+
+    <div class="kpi-card accent-amber">
+      <div class="kpi-label">Exhaust Temp <span>MANIFOLD</span></div>
+      <div class="kpi-value-row">
+        <span class="kpi-value" id="mExhaust">340</span>
+        <span class="kpi-unit">°C</span>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" id="barExhaust" style="width: 52%; background: var(--warning);"></div></div>
+      <div class="kpi-hint"><span>EGT Trend</span><span>Target: 340°C</span></div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Vibration RMS <span>HEURISTIC</span></div>
+      <div class="kpi-value-row">
+        <span class="kpi-value" id="mVib">2.4</span>
+        <span class="kpi-unit">mm/s</span>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" id="barVib" style="width: 24%; background: #A78BFA;"></div></div>
+      <div class="kpi-hint"><span id="vibHint">Normal model range</span></div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Fuel Heat Input <span>CHEMICAL</span></div>
+      <div class="kpi-value-row">
+        <span class="kpi-value" id="mHeat">14.2</span>
+        <span class="kpi-unit">kW</span>
+      </div>
+      <div class="kpi-progress"><div class="kpi-progress-bar" id="barHeat" style="width: 35%; background: #F472B6;"></div></div>
+      <div class="kpi-hint"><span>Diesel LHV</span><span>42.7 MJ/kg</span></div>
+    </div>
+  </section>
+
+  <!-- Central Workspace Grid -->
+  <div class="workspace-grid">
+    <!-- Left: 3D Powertrain Cutaway Viewport -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>01 / <span>Interactive 3D Powertrain Digital Twin</span></h2>
+        <span class="panel-badge" id="modelMode">YANMAR 2GM20F · 5-SPEED MANUAL</span>
+      </div>
+      <div class="viewport-wrapper">
+        <div class="viewport-toolbar">
+          <div class="view-tag"><i></i> DIGITAL TWIN LIVE MESH</div>
+          <div class="view-controls">
+            <button class="btn-sm" id="viewDefault">Isometric</button>
+            <button class="btn-sm" id="viewGears">Gearset</button>
+            <button class="btn-sm" id="viewDiff">Diff</button>
+            <button class="btn-sm active" id="rotateBtn">Auto Rotate</button>
+            <button class="btn-sm" id="resetViewBtn">Reset View</button>
+          </div>
+        </div>
+        <div id="threeViewport" aria-label="Interactive 3D Cutaway Manual Transmission Model">
+          <div class="loading-overlay" id="loading3d">
+            <div class="spinner"></div>
+            <strong>Initializing 3D Powertrain Mesh</strong>
+            <span>Loading Three.js graphics engine…</span>
+          </div>
+        </div>
+        <div class="viewport-footer">
+          <span>[Drag] Orbit · [Right-click Drag] Pan · [Scroll] Zoom</span>
+          <span id="selectedGearLabel">Selected: 3rd gear (1.40:1)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Actuators & Simulation Controls -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>02 / <span>Powertrain Control Unit</span></h2>
+        <span class="panel-badge">DRIVER ACTUATORS</span>
+      </div>
+      <div class="panel-body controls-container">
+        <!-- Gear Selection (Tactile Gate) -->
+        <div class="gear-selector-block">
+          <div class="control-group-title">Transmission Gear Gate</div>
+          <div class="gear-grid" id="gearShifter">
+            <button type="button" class="gear-btn" data-gear="-1">R<small>3.30:1</small></button>
+            <button type="button" class="gear-btn" data-gear="0">N<small>0.00:1</small></button>
+            <button type="button" class="gear-btn" data-gear="1">1<small>3.60:1</small></button>
+            <button type="button" class="gear-btn" data-gear="2">2<small>2.10:1</small></button>
+            <button type="button" class="gear-btn active" data-gear="3">3<small>1.40:1</small></button>
+            <button type="button" class="gear-btn" data-gear="4">4<small>1.00:1</small></button>
+            <button type="button" class="gear-btn" data-gear="5">5<small>0.80:1</small></button>
+          </div>
+          <!-- Synchronized native select for accessibility & automation -->
+          <select id="gear">
+            <option value="-1">Reverse · 3.30:1</option>
+            <option value="0">Neutral (N)</option>
+            <option value="1">1st gear · 3.60:1</option>
+            <option value="2">2nd gear · 2.10:1</option>
+            <option value="3" selected>3rd gear · 1.40:1</option>
+            <option value="4">4th gear · 1.00:1</option>
+            <option value="5">5th gear · 0.80:1</option>
+          </select>
+        </div>
+
+        <!-- Pedals Switchboard -->
+        <div>
+          <div class="control-group-title">Pedal & Ignition Actuators</div>
+          <div class="pedal-grid">
+            <div class="pedal-card">
+              <span class="pedal-title">CLUTCH</span>
+              <span class="pedal-status" id="clutchText">Engaged</span>
+              <button class="pedal-btn" id="clutchBtn">Depress</button>
+            </div>
+            <div class="pedal-card">
+              <span class="pedal-title">SERVICE BRAKE</span>
+              <span class="pedal-status" id="brakeText">Released</span>
+              <button class="pedal-btn" id="brakeBtn">Apply</button>
+            </div>
+            <div class="pedal-card">
+              <span class="pedal-title">IGNITION</span>
+              <span class="pedal-status" id="ignitionText">Running</span>
+              <button class="pedal-btn active" id="ignitionBtn">Stop</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Sliders -->
+        <div class="slider-group">
+          <div class="control-group-title">Engine & Chassis Dynamics</div>
+          
+          <div class="slider-card">
+            <div class="slider-header">
+              <span class="slider-title">Throttle Demand</span>
+              <span class="slider-readout" id="throttleVal">35%</span>
+            </div>
+            <input id="throttle" type="range" min="0" max="100" value="35">
+          </div>
+
+          <div class="slider-card">
+            <div class="slider-header">
+              <span class="slider-title">Applied Dyno Load</span>
+              <span class="slider-readout" id="loadVal">50%</span>
+            </div>
+            <input id="load" type="range" min="0" max="100" value="50">
+          </div>
+
+          <div class="slider-card">
+            <div class="slider-header">
+              <span class="slider-title">Ambient Temperature</span>
+              <span class="slider-readout" id="ambientVal">25 °C</span>
+            </div>
+            <input id="ambient" type="range" min="0" max="45" value="25">
+          </div>
+
+          <div class="slider-card">
+            <div class="slider-header">
+              <span class="slider-title">Mechanical Wear / Misalignment</span>
+              <span class="slider-readout" id="wearVal">10%</span>
+            </div>
+            <input id="wear" type="range" min="0" max="100" value="10">
+          </div>
+
+          <div class="slider-card">
+            <div class="slider-header">
+              <span class="slider-title">Final Drive Differential Ratio</span>
+              <span class="slider-readout" id="ratioVal">3.90:1</span>
+            </div>
+            <input id="ratio" type="range" min="2" max="5" step="0.1" value="3.9">
+          </div>
+        </div>
+
+        <!-- Presets Bar -->
+        <div>
+          <div class="control-group-title">Operational Presets</div>
+          <div class="presets-row">
+            <button class="preset-chip" id="presetIdle">Idle Warmup</button>
+            <button class="preset-chip" id="presetCruise">City Cruise</button>
+            <button class="preset-chip" id="presetDyno">High Load Dyno</button>
+            <button class="preset-chip" id="presetSevere">Severe Wear</button>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
-  <div class="metrics">
-   <div class="metric"><div class="name">ENGINE SPEED</div><div class="value" id="mEngine">1,500 <span class="unit">rpm</span></div><div class="hint">Crankshaft</div></div>
-   <div class="metric"><div class="name">OUTPUT SPEED</div><div class="value" id="mOutput">1,071 <span class="unit">rpm</span></div><div class="hint">After gearbox</div></div>
-   <div class="metric"><div class="name">VIBRATION</div><div class="value" id="mVib">2.4 <span class="unit">mm/s RMS</span></div><div class="hint" id="vibHint">Normal model range</div></div>
-   <div class="metric"><div class="name">COOLANT TEMP.</div><div class="value" id="mCoolant">82 <span class="unit">°C</span></div><div class="hint">Model estimate</div></div>
-   <div class="metric"><div class="name">EXHAUST TEMP.</div><div class="value" id="mExhaust">340 <span class="unit">°C</span></div><div class="hint">Engine outlet</div></div>
-   <div class="metric"><div class="name">HEAT RELEASE RATE</div><div class="value" id="mHeat">42 <span class="unit">kW</span></div><div class="hint">Fuel energy input</div></div>
-  </div>
- </section>
- <section class="panel">
-  <div class="panel-head"><h2>02 / Driver controls</h2><span>Change inputs live</span></div>
-  <div class="panel-body">
-   <div class="controls">
-    <div class="control"><label for="gear">Gear selection</label><select id="gear"><option value="0">Neutral (N)</option><option value="1">1st gear · 3.60:1</option><option value="2">2nd gear · 2.10:1</option><option value="3" selected>3rd gear · 1.40:1</option><option value="4">4th gear · 1.00:1</option><option value="5">5th gear · 0.80:1</option><option value="-1">Reverse · 3.30:1</option></select></div>
-    <div class="control"><label for="load">Applied load <output id="loadVal">50%</output></label><input id="load" type="range" min="0" max="100" value="50"></div>
-    <div class="control"><label for="throttle">Throttle <output id="throttleVal">35%</output></label><input id="throttle" type="range" min="0" max="100" value="35"></div>
-    <div class="control"><label for="ambient">Ambient temperature <output id="ambientVal">25 °C</output></label><input id="ambient" type="range" min="0" max="45" value="25"></div>
-    <div class="control"><label for="wear">Misalignment / wear <output id="wearVal">10%</output></label><input id="wear" type="range" min="0" max="100" value="10"></div>
-    <div class="control"><label for="ratio">Final drive ratio <output id="ratioVal">3.90:1</output></label><input id="ratio" type="range" min="2" max="5" step=".1" value="3.9"></div>
-   </div>
-   <div class="pedals">
-    <div class="pedal"><strong>CLUTCH</strong><br><small id="clutchText">Engaged</small><button id="clutchBtn" class="active">Press / release</button></div>
-    <div class="pedal"><strong>BRAKE</strong><br><small id="brakeText">Released</small><button id="brakeBtn">Apply brake</button></div>
-    <div class="pedal"><strong>IGNITION</strong><br><small id="ignitionText">Running</small><button id="ignitionBtn" class="active">Stop engine</button></div>
-   </div>
-   <div class="actions"><button id="pauseBtn">Pause simulation</button><button id="resetBtn">Reset defaults</button><button id="csvBtn" class="primary">Export CSV data</button></div>
-   <p class="note">Shift gears by selecting a gear. For a conventional shift, press the clutch first, select the gear, then release the clutch.</p>
-  </div>
- </section>
- <section class="panel">
-  <div class="panel-head"><h2>03 / RPM comparison</h2><span>Engine vs gearbox output</span></div>
-  <div class="chart-wrap"><div class="chart-legend"><span><i class="key" style="background:#52d7e8"></i>Engine RPM</span><span><i class="key" style="background:#ffbd69"></i>Gearbox output RPM</span></div><canvas id="rpmChart" width="800" height="240"></canvas></div>
- </section>
- <section class="panel">
-  <div class="panel-head"><h2>04 / Thermal & vibration trends</h2><span>Recent simulation history</span></div>
-  <div class="chart-wrap"><div class="chart-legend"><span><i class="key" style="background:#ff7777"></i>Exhaust °C</span><span><i class="key" style="background:#73e0a1"></i>Coolant °C</span><span><i class="key" style="background:#b49cff"></i>Vibration mm/s RMS × 30</span></div><canvas id="thermalChart" width="800" height="240"></canvas></div>
- </section>
- <section class="panel full">
-  <div class="panel-head"><h2>05 / Calculated engineering outputs</h2><span class="pill">Illustrative model values</span></div>
-  <div class="panel-body bottom-grid">
-   <div><table class="table"><thead><tr><th>Parameter</th><th>Current value</th></tr></thead><tbody>
-    <tr><td>Gear ratio</td><td id="tGear">1.40 : 1</td></tr><tr><td>Overall ratio (gear × final drive)</td><td id="tOverall">5.46 : 1</td></tr><tr><td>Estimated engine torque</td><td id="tTorque">190 N·m</td></tr><tr><td>Estimated shaft power</td><td id="tPower">29.8 kW</td></tr><tr><td>Fuel consumption</td><td id="tFuel">8.2 L/h</td></tr><tr><td>Specific fuel consumption</td><td id="tSfc">276 g/kWh</td></tr>
-   </tbody></table></div>
-   <div><table class="table"><thead><tr><th>Parameter</th><th>Current value</th></tr></thead><tbody>
-    <tr><td>Fuel heat input</td><td id="tHeat">42.0 kW</td></tr><tr><td>Estimated heat to coolant</td><td id="tCoolHeat">8.4 kW</td></tr><tr><td>Estimated gear efficiency</td><td id="tEff">94.0%</td></tr><tr><td>Engine / output RPM difference</td><td id="tDiff">429 rpm</td></tr><tr><td>Clutch slip speed (model)</td><td id="tSlip">0 rpm</td></tr><tr><td>Output torque (estimated)</td><td id="tOutTorque">245 N·m</td></tr><tr><td>Operating state</td><td id="tState">Loaded · clutch engaged</td></tr>
-   </tbody></table></div>
-  </div>
- </section>
- <section class="panel full">
-  <div class="panel-head"><h2>06 / Reference data & provenance</h2><span class="pill">Manufacturer data + model assumptions</span></div>
-  <div class="panel-body bottom-grid">
-   <div>
-    <table class="table"><thead><tr><th>Published Yanmar 2GM20F specification</th><th>Value</th></tr></thead><tbody>
-     <tr><td>Engine type</td><td>2-cylinder, 4-stroke diesel</td></tr>
-     <tr><td>Displacement</td><td>0.636 L</td></tr>
-     <tr><td>Bore × stroke</td><td>75 × 72 mm</td></tr>
-     <tr><td>Compression ratio</td><td>23.0 : 1</td></tr>
-     <tr><td>Continuous rating</td><td>11.8 kW @ 3400 rpm</td></tr>
-     <tr><td>One-hour rating</td><td>13.4 kW @ 3600 rpm</td></tr>
-    </tbody></table>
-    <p class="note">Source: <a href="https://www.yanmar.no/theme/yanmarportal/uploadedFiles/Marine/productDownloads/Leisure-Previous-Models/Operation-Manuals/GM-OP-Manual-Multi.pdf" target="_blank" rel="noopener" style="color:#80d6e4">Yanmar GM-series operation manual</a>.</p>
-   </div>
-   <div>
-    <table class="table"><thead><tr><th>Output</th><th>Data status</th></tr></thead><tbody>
-     <tr><td>Rated power and engine geometry</td><td>Published</td></tr>
-     <tr><td>Gear ratios</td><td>Generic demonstration values</td></tr>
-     <tr><td>Intermediate torque / fuel rate</td><td>Modelled</td></tr>
-     <tr><td>Coolant and exhaust temperatures</td><td>Estimated trend</td></tr>
-     <tr><td>Vibration amplitude</td><td>Heuristic estimate</td></tr>
-     <tr><td>Combustion heat-release curve</td><td>Requires cylinder pressure data</td></tr>
-    </tbody></table>
-    <p class="note">Heat-release-rate calculation uses cylinder pressure P(θ), volume V(θ), and the first-law relation. <a href="https://www.mdpi.com/1996-1073/9/6/456" target="_blank" rel="noopener" style="color:#80d6e4">Published experimental methodology</a>.</p>
-   </div>
-  </div>
- </section>
-<section class="panel full">
-  <div class="panel-head"><h2>Model notes & assumptions</h2><span>Read before using for reports</span></div>
-  <div class="panel-body note">This is an educational formula-based prototype. Published Yanmar 2GM20F specifications anchor engine size and rated output; the selectable 5-speed gearbox is generic, not a Yanmar transmission. Intermediate torque-curve points, BSFC, thermal response, vibration amplitude and gear efficiency are modeled assumptions, not manufacturer test data. “Fuel heat input” is fuel mass flow × assumed diesel lower heating value; it is not a crank-angle-resolved in-cylinder heat-release-rate curve. Vibration is a heuristic trend indicator, while firing and gear-mesh frequencies are approximate indicators; neither is a measured spectrum. Gearbox output RPM uses selected gear ratio × final-drive ratio. For accurate heat-release rate, use cylinder-pressure vs crank-angle data and engine geometry; for validated vibration/temperature/fuel results, calibrate against dynamometer tests or connect sensors.</div>
- </section>
+
+  <!-- Telemetry Strip Charts Section -->
+  <section class="charts-grid">
+    <div class="chart-panel">
+      <div class="panel-header">
+        <h2>03 / <span>Kinematic Velocity History</span></h2>
+        <span class="panel-badge">REAL-TIME TELEMETRY</span>
+      </div>
+      <div class="chart-canvas-wrap">
+        <div class="chart-legend">
+          <div class="legend-item"><span class="legend-dot" style="background: var(--accent-teal);"></span> Engine Speed (RPM)</div>
+          <div class="legend-item"><span class="legend-dot" style="background: var(--accent-blue);"></span> Gearbox Output (RPM)</div>
+        </div>
+        <canvas class="telemetry-chart" id="rpmChart" width="800" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-panel">
+      <div class="panel-header">
+        <h2>04 / <span>Thermodynamic & Vibration Trends</span></h2>
+        <span class="panel-badge">MULTI-CHANNEL LOG</span>
+      </div>
+      <div class="chart-canvas-wrap">
+        <div class="chart-legend">
+          <div class="legend-item"><span class="legend-dot" style="background: var(--warning);"></span> Exhaust (°C)</div>
+          <div class="legend-item"><span class="legend-dot" style="background: var(--success);"></span> Coolant (°C)</div>
+          <div class="legend-item"><span class="legend-dot" style="background: #A78BFA;"></span> Vibration (RMS x30)</div>
+        </div>
+        <canvas class="telemetry-chart" id="thermalChart" width="800" height="200"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Engineering Tables & Benchmark Data -->
+  <section class="tables-grid">
+    <div class="table-panel">
+      <div class="panel-header">
+        <h2>05 / <span>Calculated Powertrain Metrics</span></h2>
+        <span class="panel-badge">PHYSICAL & KINEMATIC FORMULATION</span>
+      </div>
+      <table class="eng-table">
+        <thead>
+          <tr>
+            <th>Diagnostic Parameter</th>
+            <th>Calculated Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Active Gear Ratio</td><td id="tGear">1.40 : 1</td></tr>
+          <tr><td>Overall Drive Ratio (Gear x Final Drive)</td><td id="tOverall">5.46 : 1</td></tr>
+          <tr><td>Estimated Engine Torque</td><td id="tTorque">31.2 N·m</td></tr>
+          <tr><td>Estimated Shaft Brake Power</td><td id="tPower">4.9 kW</td></tr>
+          <tr><td>Volumetric Fuel Flow Rate</td><td id="tFuel">1.4 L/h</td></tr>
+          <tr><td>Brake Specific Fuel Consumption (BSFC)</td><td id="tSfc">285 g/kWh</td></tr>
+          <tr><td>Fuel Chemical Heat Release Rate</td><td id="tHeat">14.2 kW</td></tr>
+          <tr><td>Estimated Heat Rejection to Coolant</td><td id="tCoolHeat">2.8 kW</td></tr>
+          <tr><td>Mechanical Gear Transmission Efficiency</td><td id="tEff">94.2%</td></tr>
+          <tr><td>Shaft Angular Velocity Delta (Engine vs Out)</td><td id="tDiff">429 rpm</td></tr>
+          <tr><td>Clutch Slip Angular Velocity</td><td id="tSlip">0 rpm</td></tr>
+          <tr><td>Estimated Wheel / Output Torque</td><td id="tOutTorque">160.5 N·m</td></tr>
+          <tr><td>Powertrain Operating Regime</td><td id="tState">Loaded · clutch engaged</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-panel">
+      <div class="panel-header">
+        <h2>06 / <span>Benchmark Reference & Provenance</span></h2>
+        <span class="panel-badge">MANUFACTURER vs MODEL</span>
+      </div>
+      <table class="eng-table">
+        <thead>
+          <tr>
+            <th>Yanmar 2GM20F Specification</th>
+            <th>Factory Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Engine Configuration</td><td>2-Cylinder 4-Stroke Diesel</td></tr>
+          <tr><td>Total Displacement</td><td>0.636 Litres</td></tr>
+          <tr><td>Bore x Stroke</td><td>75.0 x 72.0 mm</td></tr>
+          <tr><td>Compression Ratio</td><td>23.0 : 1</td></tr>
+          <tr><td>Continuous Rating</td><td>11.8 kW @ 3,400 rpm</td></tr>
+          <tr><td>One-Hour Rating</td><td>13.4 kW @ 3,600 rpm</td></tr>
+          <tr><td>Transmission Architecture</td><td>Illustrative 5-Speed Transaxle</td></tr>
+          <tr><td>Thermal & Vibration Model</td><td>First-Order Transient Heuristic</td></tr>
+        </tbody>
+      </table>
+      <div class="notes-card">
+        <strong>Technical Provenance:</strong> Engine dimensions and rated power are anchored to the official 
+        <a href="https://www.yanmar.no/theme/yanmarportal/uploadedFiles/Marine/productDownloads/Leisure-Previous-Models/Operation-Manuals/GM-OP-Manual-Multi.pdf" target="_blank" rel="noopener">Yanmar GM Operation Manual</a>. 
+        Intermediate torque curves, thermal response lag, and vibration amplitudes are modeled engineering estimates for dynamic demonstration.
+      </div>
+    </div>
+  </section>
 </main>
-<div class="footer">Manual Transmission Lab · Local browser prototype · No account or internet connection required after saving this file.</div>
+
+<footer>
+  <div>Transmission Dynamics Studio · High-Fidelity Automotive Engineering Demonstrator</div>
+  <div>Platform: HTML5 WebGL / Three.js r160 · Client-side Execution · Zero Network Latency</div>
+</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
-const $=id=>document.getElementById(id);
-const gearRatios={0:0,1:3.6,2:2.1,3:1.4,4:1,5:.8,'-1':3.3};
-let running=true, clutch=false, brake=false, ignition=true, hist=[], last=performance.now(), elapsed=0, threeModel=null;
-const defaults={gear:'3',load:50,throttle:35,ambient:25,wear:10,ratio:3.9};
-function fmt(n,d=0){return Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})}
-function val(id){return +$(id).value}
-function compute(dt=0){
- const g=+$('gear').value, load=val('load')/100, throttle=val('throttle')/100, ambient=val('ambient'), wear=val('wear')/100, fd=val('ratio');
- const gear=gearRatios[g], idle=ignition?700:0;
- // Illustrative 2.0 L, 4-cylinder, 4-stroke turbo-diesel reference model.
- // Torque curve is a simplified map, not a particular manufacturer's dyno data.
- const target=ignition?Math.min(3600, idle+throttle*2900-load*180):0;
- if(!compute.rpm)compute.rpm=1500;
- if(running)compute.rpm+=(target-compute.rpm)*(1-Math.exp(-dt/1.2));
- const rpm=Math.max(0,compute.rpm);
- const ratedTorqueContinuous=11800/(2*Math.PI*3400/60); // 33.1 N·m from published continuous rating
- const ratedTorqueOneHour=13400/(2*Math.PI*3600/60); // 35.5 N·m from published one-hour rating
- const baseTorque=rpm<=3400 ? 29.0 + Math.max(0,rpm-700)*(4.1/2700) : 33.1 + (rpm-3400)*(2.4/200);
- const torque=ignition?Math.max(0,baseTorque*(0.15+0.85*throttle)*(1-0.28*load)):0;
- const power=torque*rpm/9549;
- const connected=ignition&&!clutch&&g!==0&&!brake;
- const overall=gear*fd;
- const output=connected&&overall>0?rpm/overall:0;
- // Approximate gear efficiency; wear increases losses. Not a measured gearbox map.
- const eff=Math.max(.84,.97-wear*.08-(Math.abs(g)===1?.01:0));
- const outTorque=connected?torque*overall*eff:0;
- // BSFC approximation varies with load; only meaningful at positive brake power.
- const bsfc=245+70*Math.pow(1-load,2)+25*Math.pow(1-throttle,2); // g/kWh, approximate
- const fuelKgH=power>0.5?(power*bsfc/1000):0;
- const fuel=fuelKgH/0.835; // diesel density assumed 0.835 kg/L
- const lhv=42.7; // MJ/kg, representative diesel lower heating value
- const heat=fuelKgH*lhv/3.6; // kW fuel chemical-energy input; not in-cylinder apparent heat-release curve
- // Lumped thermal estimates: ambient + load/throttle heat rejection, with a first-order transient.
- const coolantTarget=ambient+(ignition?22+load*48+throttle*8+wear*8:0);
- const exhaustTarget=ambient+(ignition?100+throttle*330+load*190+wear*45:0);
- if(!compute.coolant)compute.coolant=coolantTarget;
- if(!compute.exhaust)compute.exhaust=exhaustTarget;
- if(running){compute.coolant+=(coolantTarget-compute.coolant)*(1-Math.exp(-dt/18));compute.exhaust+=(exhaustTarget-compute.exhaust)*(1-Math.exp(-dt/5));}
- const coolant=compute.coolant, exhaust=compute.exhaust;
- // Frequency indicators: 4-cylinder four-stroke firing frequency and gear mesh proxy.
- const firingHz=ignition?(rpm/60)*(4/2):0;
- const meshHz=connected&&rpm>0?(rpm/60)*Math.max(1,Math.round(gear*8)):0;
- // Vibration magnitude is a heuristic trend indicator only; cannot substitute for accelerometer data.
- const vib=ignition?0.5+rpm/2600+load*.8+wear*4.5+(clutch?.5:0)+(Math.abs(g)===1?.25:0):0;
- const clutchSlip=clutch&&g!==0?Math.abs(rpm-(output*overall)):0;
- const sfc=power>0.5?bsfc:0;
- return {g,gear,load,throttle,ambient,wear,fd,rpm,output,torque,power,eff,outTorque,fuel,heat,coolant,exhaust,vib,sfc,connected,bsfc,fuelKgH,clutchSlip,firingHz,meshHz};
-}
-function put(id,txt){const el=$(id);if(!el)return;if(['mEngine','mOutput','mVib','mCoolant','mExhaust','mHeat'].includes(id))el.innerHTML=txt;else el.textContent=txt}
-function update(dt=0){
- const x=compute(dt), gearName=x.g===0?'Neutral':x.g===-1?'Reverse':`${x.g}${['st','nd','rd'][x.g-1]||'th'} gear`;
- put('loadVal',`${Math.round(x.load*100)}%`);put('throttleVal',`${Math.round(x.throttle*100)}%`);put('ambientVal',`${x.ambient} °C`);put('wearVal',`${Math.round(x.wear*100)}%`);put('ratioVal',`${x.fd.toFixed(2)}:1`);
- put('mEngine',`${fmt(x.rpm)} <span class="unit">rpm</span>`);put('mOutput',`${fmt(x.output)} <span class="unit">rpm</span>`);put('mVib',`${fmt(x.vib,1)} <span class="unit">mm/s RMS</span>`);put('mCoolant',`${fmt(x.coolant)} <span class="unit">°C</span>`);put('mExhaust',`${fmt(x.exhaust)} <span class="unit">°C</span>`);put('mHeat',`${fmt(x.heat,1)} <span class="unit">kW</span>`);
- put('tGear',`${x.gear.toFixed(2)} : 1`);put('tOverall',x.gear?`${(x.gear*x.fd).toFixed(2)} : 1`:'Disconnected');put('tTorque',`${fmt(x.torque)} N·m`);put('tPower',`${fmt(x.power,1)} kW`);put('tFuel',`${fmt(x.fuel,1)} L/h`);put('tSfc',x.sfc?`${fmt(x.sfc)} g/kWh`:'—');put('tHeat',`${fmt(x.heat,1)} kW`);put('tCoolHeat',`${fmt(x.heat*.2,1)} kW`);put('tEff',`${fmt(x.eff*100,1)}%`);put('tDiff',`${fmt(Math.abs(x.rpm-x.output))} rpm`);put('tSlip',`${fmt(x.clutchSlip)} rpm`);put('tOutTorque',`${fmt(x.outTorque)} N·m`);put('tState',!ignition?'Engine off':clutch?'Clutch disengaged':x.g===0?'Neutral':brake?'Braking':'Loaded · clutch engaged');
- put('vibHint',x.vib>7?'High vibration in model':x.vib>4?'Elevated model vibration':'Normal model range');
- $('clutchText').textContent=clutch?'Disengaged':'Engaged';$('clutchBtn').classList.toggle('active',clutch);$('brakeText').textContent=brake?'Applied':'Released';$('brakeBtn').classList.toggle('active',brake);$('ignitionText').textContent=ignition?'Running':'Stopped';$('ignitionBtn').textContent=ignition?'Stop engine':'Start engine';$('ignitionBtn').classList.toggle('active',ignition);
- $('runStatus').textContent=running?'SIMULATION RUNNING':'SIMULATION PAUSED';$('statusDot').style.background=running?'var(--green)':'var(--orange)';
- if(threeModel) threeModel.sync({gear:x.g,rpm:x.rpm,out:x.output,clutch,brake,ignition,wear:x.wear});
- if(elapsed%0.6<dt){hist.push({t:elapsed,rpm:x.rpm,out:x.output,coolant:x.coolant,exhaust:x.exhaust,vib:x.vib,heat:x.heat,fuel:x.fuel,gear:x.g,load:x.load,throttle:x.throttle,slip:x.clutchSlip});if(hist.length>90)hist.shift();drawCharts()}
-}
-function draw(canvas,series,maxY){const c=$(canvas),ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#10182a';ctx.fillRect(0,0,w,h);const pad={l:42,r:12,t:12,b:27},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;ctx.font='11px system-ui';ctx.strokeStyle='#293653';ctx.fillStyle='#9eacc8';ctx.lineWidth=1;
- for(let i=0;i<=4;i++){let y=pad.t+ch*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillText(fmt(maxY*(1-i/4)),4,y+4)}
- for(let i=0;i<5;i++){let x=pad.l+cw*i/4;ctx.fillText(i===4?'now':`-${(4-i)*15}s`,x-12,h-7)}
- series.forEach(s=>{ctx.beginPath();ctx.strokeStyle=s.color;ctx.lineWidth=2.5;s.data.forEach((v,i)=>{let x=pad.l+(series[0].data.length>1?i/(series[0].data.length-1):1)*cw,y=pad.t+ch*(1-Math.min(maxY,Math.max(0,v))/maxY);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke()});
-}
-function drawCharts(){draw('rpmChart',[{data:hist.map(h=>h.rpm),color:'#52d7e8'},{data:hist.map(h=>h.out),color:'#ffbd69'}],4500);draw('thermalChart',[{data:hist.map(h=>h.exhaust),color:'#ff7777'},{data:hist.map(h=>h.coolant),color:'#73e0a1'},{data:hist.map(h=>h.vib*30),color:'#b49cff'}],650)}
-['gear','load','throttle','ambient','wear','ratio'].forEach(id=>$(id).addEventListener('input',()=>update(0.05)));
-$('clutchBtn').onclick=()=>{clutch=!clutch;update(.05)};$('brakeBtn').onclick=()=>{brake=!brake;update(.05)};$('ignitionBtn').onclick=()=>{ignition=!ignition;if(!ignition)compute.rpm=0;else compute.rpm=700;update(.05)};
-$('pauseBtn').onclick=()=>{running=!running;$('pauseBtn').textContent=running?'Pause simulation':'Resume simulation';update(0)};
-$('resetBtn').onclick=()=>{Object.entries(defaults).forEach(([k,v])=>$(k).value=v);running=true;clutch=false;brake=false;ignition=true;compute.rpm=1500;hist=[];elapsed=0;$('pauseBtn').textContent='Pause simulation';update(.05)};
-$('csvBtn').onclick=()=>{const rows=[['time_s','engine_rpm','output_rpm','vibration_model_mm_s_rms','coolant_C_est','exhaust_C_est','fuel_heat_input_kW','fuel_L_h_est','gear','load_fraction','throttle_fraction','clutch_slip_rpm'],...hist.map(h=>[h.t.toFixed(1),h.rpm.toFixed(1),h.out.toFixed(1),h.vib.toFixed(2),h.coolant.toFixed(1),h.exhaust.toFixed(1),h.heat.toFixed(2),h.fuel.toFixed(2),h.gear,h.load.toFixed(3),h.throttle.toFixed(3),h.slip.toFixed(1)])];const blob=new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='manual_transmission_simulation.csv';a.click();URL.revokeObjectURL(a.href)};
-function loop(now){let dt=Math.min(.1,(now-last)/1000);last=now;if(running){elapsed+=dt;update(dt)}requestAnimationFrame(loop)}
+const $ = id => document.getElementById(id);
+const gearRatios = { 0: 0, 1: 3.6, 2: 2.1, 3: 1.4, 4: 1.0, 5: 0.8, '-1': 3.3 };
+let running = true, clutch = false, brake = false, ignition = true, hist = [], last = performance.now(), elapsed = 0, threeModel = null;
+const defaults = { gear: '3', load: 50, throttle: 35, ambient: 25, wear: 10, ratio: 3.9 };
 
-// Procedural Three.js cutaway model: visible shafts, toothed gears, selector forks,
-// clutch/flywheel, bearings and a translucent gearbox housing. Gear tooth counts are
-// illustrative geometry; selectable ratios drive the kinematic model shown in the dashboard.
-function initThreeModel(){
- if(!window.THREE){$('loading3d').innerHTML='<strong>3D library could not load</strong><span>Connect to the internet and refresh to load the Three.js renderer.</span>';return;}
- const host=$('threeViewport'), scene=new THREE.Scene();scene.background=new THREE.Color('#0c151f');scene.fog=new THREE.Fog('#0c151f',13,28);
- const camera=new THREE.PerspectiveCamera(36,host.clientWidth/host.clientHeight,.1,100);camera.position.set(8.7,7.1,10.8);camera.lookAt(0,0,0);
- const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(host.clientWidth,host.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
- scene.add(new THREE.HemisphereLight(0xc9e8ff,0x202a35,2.0));
- const key=new THREE.DirectionalLight(0xffffff,3.0);key.position.set(5,9,7);scene.add(key);
- const rim=new THREE.DirectionalLight(0x55b9d5,2.2);rim.position.set(-7,2,-5);scene.add(rim);
- const warm=new THREE.PointLight(0xd9a66b,28,16);warm.position.set(2,4,3);scene.add(warm);
- const mat=(color,metalness=.3,roughness=.35,transparent=false,opacity=1)=>new THREE.MeshStandardMaterial({color,metalness,roughness,transparent,opacity,side:transparent?THREE.DoubleSide:THREE.FrontSide,depthWrite:!transparent});
- const steel=mat('#8496a6',.85,.27), darkSteel=mat('#3c5262',.82,.32), shaftMat=mat('#a8b9c5',.9,.22), brass=mat('#c69c5b',.75,.25), blue=mat('#58c4d8',.55,.23), activeMat=mat('#f0b65e',.6,.25), rubber=mat('#1a2833',.15,.72), casing=mat('#7e9caf',.45,.34,true,.13), dark=mat('#0b141d',.2,.7);
- const root=new THREE.Group();scene.add(root);
- function cylinder(parent,r1,r2,len,material,pos,axis='x',segments=48){const m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,len,segments),material);if(axis==='x')m.rotation.z=Math.PI/2;else if(axis==='z')m.rotation.x=Math.PI/2;m.position.set(...pos);parent.add(m);return m;}
- function box(parent,sz,material,pos){const m=new THREE.Mesh(new THREE.BoxGeometry(...sz),material);m.position.set(...pos);parent.add(m);return m;}
- function gear(parent,teeth,radius,width,x,y,z,material){
-   // Extruded spur gear with a tooth-like perimeter generated as a 2D outline.
-   const pts=[];const steps=teeth*4;
-   for(let i=0;i<steps;i++){const a=i/steps*Math.PI*2;const phase=i%4;const r=radius*(phase===1||phase===2?1.075:1);pts.push(new THREE.Vector2(Math.cos(a)*r,Math.sin(a)*r));}
-   const shape=new THREE.Shape();shape.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)shape.lineTo(pts[i].x,pts[i].y);shape.closePath();
-   const geo=new THREE.ExtrudeGeometry(shape,{depth:width,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.035,bevelThickness:.025,curveSegments:1});geo.computeVertexNormals();
-   const mesh=new THREE.Mesh(geo,material);mesh.rotation.y=Math.PI/2;mesh.position.set(x-width/2,y,z);parent.add(mesh);
-   const hub=cylinder(parent,radius*.24,radius*.24,width*1.15,shaftMat,[x,y,z],'x',24);
-   return {mesh,hub,teeth,radius,baseMaterial:material};
- }
- // base and structural mounts
- box(root,[9.7,.16,4.6],mat('#14222e',.25,.6),[0,-1.25,0]);
- for(let x=-3.8;x<=3.8;x+=1.9)for(let z of [-1.6,1.6])cylinder(root,.12,.12,.5,darkSteel,[x,-1.0,z],'y',20);
- // engine block & flywheel at left
- const eng=box(root,[1.65,1.55,1.65],mat('#354b5b',.65,.34),[-3.45,0,0]);
- for(let i=0;i<4;i++){box(root,[.22,.95,.7],mat('#4b6474',.6,.32),[-3.95+i*.34,.15,.86]);}
- const fly=cylinder(root, .91,.91,.22,brass,[-2.45,0,0],'x',64);
- const flyRim=cylinder(root,1.0,1.0,.11,darkSteel,[-2.58,0,0],'x',64);
- const clutch=cylinder(root,.64,.64,.35,activeMat,[-2.2,0,0],'x',48);
- const inputShaft=cylinder(root,.13,.13,4.7,shaftMat,[-.05,.28,-.54],'x',32);
- const outputShaft=cylinder(root,.13,.13,4.8,shaftMat,[.0,-.28,.56],'x',32);
- // gearbox shafts and gear pairs. Pairs correspond to the selectable forward speeds.
- const pairs=[
-   {g:1,teethA:14,teethB:50,x:-1.35,rA:.48,rB:1.00},
-   {g:2,teethA:20,teethB:42,x:-.55,rA:.60,rB:.94},
-   {g:3,teethA:25,teethB:35,x:.25,rA:.72,rB:.90},
-   {g:4,teethA:32,teethB:32,x:1.05,rA:.82,rB:.82},
-   {g:5,teethA:35,teethB:28,x:1.85,rA:.90,rB:.72}
- ];
- const gearObjects=[];
- for(const pair of pairs){
-   const a=gear(root,pair.teethA,pair.rA,.32,pair.x,.28,-.54,steel);
-   const b=gear(root,pair.teethB,pair.rB,.32,pair.x,-.28,.56,darkSteel);
-   // Highlightable synchronizer collar slides toward the selected pair.
-   const sync=cylinder(root,.34,.34,.22,blue,[pair.x,-.28,.56],'x',40);
-   gearObjects.push({...pair,a,b,sync});
- }
- // selector rails, forks, bearings and output differential
- for(let z of [-.54,.56]){for(let x of [-2.0,2.5])cylinder(root,.19,.19,.22,brass,[x,z<0?.28:-.28,z],'x',32);}
- for(let y of [-.28,.28]){cylinder(root,.08,.08,4.6,brass,[0,y,-1.04],'x',24);}
- const diff=cylinder(root,.62,.62,.62,mat('#536c7c',.75,.29),[3.0,-.08,0],'x',48);
- for(let i=0;i<8;i++){const a=i/8*Math.PI*2;const pin=box(root,[.28,.11,.12],brass,[3.25,-.08+Math.cos(a)*.47,Math.sin(a)*.47]);pin.rotation.x=a;}
- const out=cylinder(root,.12,.12,1.7,shaftMat,[3.85,-.08,0],'x',32);
- // translucent cutaway shell with frame bars
- const shell=new THREE.Mesh(new THREE.BoxGeometry(5.2,2.25,2.45),casing);shell.position.set(.25,0,0);root.add(shell);
- for(let x of [-2.35,2.85])for(let y of [-1.05,1.05])for(let z of [-1.13,1.13])cylinder(root,.055,.055,2.35,brass,[x,y,z],'z',16);
- // label sprites
- function label(text,pos,color='#d6e6ee'){const c=document.createElement('canvas');c.width=512;c.height=96;const ctx=c.getContext('2d');ctx.fillStyle='rgba(9,17,26,.78)';ctx.roundRect(2,2,508,92,15);ctx.fill();ctx.font='bold 32px system-ui';ctx.fillStyle=color;ctx.fillText(text,20,60);const tex=new THREE.CanvasTexture(c);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));sp.scale.set(2.4,.45,1);sp.position.set(...pos);root.add(sp);return sp;}
- label('DIESEL ENGINE',[-3.5,1.35,0]);label('CLUTCH',[-2.2,1.15,0],'#f0c477');label('CONSTANT-MESH GEARSET',[.25,1.45,0]);label('OUTPUT',[3.5,1.1,0],'#80d6c5');
- // subtle floor grid
- const grid=new THREE.GridHelper(16,32,'#29404f','#1b2b38');grid.position.y=-1.17;scene.add(grid);
- let autoRotate=true,drag=false,lastX=0,lastY=0,theta=.65,phi=1.08,radius=12;
- function cameraUpdate(){phi=Math.max(.25,Math.min(1.48,phi));camera.position.set(radius*Math.sin(phi)*Math.sin(theta),radius*Math.cos(phi),radius*Math.sin(phi)*Math.cos(theta));camera.lookAt(0,0,0);}
- cameraUpdate();
- renderer.domElement.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId);});
- renderer.domElement.addEventListener('pointermove',e=>{if(!drag)return;theta-=(e.clientX-lastX)*.008;phi+=(e.clientY-lastY)*.008;lastX=e.clientX;lastY=e.clientY;cameraUpdate();});
- renderer.domElement.addEventListener('pointerup',()=>drag=false);renderer.domElement.addEventListener('pointercancel',()=>drag=false);
- renderer.domElement.addEventListener('wheel',e=>{radius=Math.max(7,Math.min(19,radius+e.deltaY*.009));cameraUpdate();},{passive:true});
- $('rotateBtn').onclick=()=>{autoRotate=!autoRotate;$('rotateBtn').textContent=autoRotate?'Auto rotate: on':'Auto rotate: off';};
- $('resetViewBtn').onclick=()=>{theta=.65;phi=1.08;radius=12;cameraUpdate();};
- let currentGear=3,selectedSync=null;
- function sync(state){
-   const next=state.gear;
-   $('modelMode').textContent = state.clutch ? 'CLUTCH DISENGAGED · SYNCHRONIZER MOVEMENT' : (next===0 ? 'NEUTRAL · NO GEAR SELECTED' : `GEAR ${next===-1?'R':next} ENGAGED · SHAFT ROTATION ACTIVE`);
-   if(next!==currentGear){currentGear=next;$('selectedGearLabel').textContent='Selected: '+(next===0?'Neutral':next===-1?'Reverse':`${next}${['st','nd','rd'][next-1]||'th'} gear`);}
-   // Rotation direction/speed is driven by current shaft speed; selected pair gets an amber highlight
-   const inputOmega=state.ignition?state.rpm/60*2*Math.PI:0;
-   root.rotation.y=0;
-   fly.rotation.x+=inputOmega*.016;
-   flyRim.rotation.x+=inputOmega*.016;
-   clutch.rotation.x+=inputOmega*.016*(state.clutch?.2:1);
-   inputShaft.rotation.x+=inputOmega*.016;
-   outputShaft.rotation.x+=state.out/60*2*Math.PI*.016;
-   for(const item of gearObjects){
-     const selected=next===item.g;
-     item.a.mesh.material=selected?activeMat:steel;
-     item.b.mesh.material=selected?activeMat:darkSteel;
-     item.sync.material=selected?activeMat:blue;
-     // synchronizer collar visibly shifts into the selected gear; neutral leaves collars centered.
-     const target=selected&&!state.clutch?item.x+.22:item.x-.18;
-     item.sync.position.x+=(target-item.sync.position.x)*.18;
-     item.a.mesh.rotation.x+=inputOmega*.016;
-     item.b.mesh.rotation.x-=inputOmega*.016*(item.teethA/item.teethB);
-   }
-   diff.rotation.x+=state.out/60*2*Math.PI*.016;
-   shell.material.opacity=state.wear>.65?.07:.13;
-   clutch.material=state.clutch?darkSteel:activeMat;
-   fly.material=state.ignition?brass:darkSteel;
-   eng.material.color.set(state.ignition?'#354b5b':'#27323b');
-   root.position.y=state.brake?-.035:0;
-   if(state.brake)diff.material.color.set('#9a5555');else diff.material.color.set('#536c7c');
- }
- function animate(){requestAnimationFrame(animate);if(autoRotate&&!drag){theta+=.0018;cameraUpdate();}renderer.render(scene,camera);}
- const ro=new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;if(w&&h){camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);}});ro.observe(host);
- $('loading3d').style.display='none';animate();
- threeModel={sync};
+function fmt(n, d = 0) {
+  return Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 }
+function val(id) { return +$(id).value; }
+
+function compute(dt = 0) {
+  const g = +$('gear').value;
+  const load = val('load') / 100;
+  const throttle = val('throttle') / 100;
+  const ambient = val('ambient');
+  const wear = val('wear') / 100;
+  const fd = val('ratio');
+  const gear = gearRatios[g];
+  const idle = ignition ? 700 : 0;
+
+  // Calibrated reference model for Yanmar 2GM20F 2-cylinder diesel
+  const target = ignition ? Math.min(3600, idle + throttle * 2900 - load * 180) : 0;
+  if (!compute.rpm) compute.rpm = 1500;
+  if (running) compute.rpm += (target - compute.rpm) * (1 - Math.exp(-dt / 1.2));
+  const rpm = Math.max(0, compute.rpm);
+
+  // Yanmar 2GM20F rated torques:
+  // 11.8 kW @ 3400 continuous -> 33.1 N·m
+  // 13.4 kW @ 3600 one-hour -> 35.5 N·m
+  const baseTorque = rpm <= 3400 ? 29.0 + Math.max(0, rpm - 700) * (4.1 / 2700) : 33.1 + (rpm - 3400) * (2.4 / 200);
+  const torque = ignition ? Math.max(0, baseTorque * (0.15 + 0.85 * throttle) * (1 - 0.28 * load)) : 0;
+  const power = (torque * rpm) / 9549;
+  const connected = ignition && !clutch && g !== 0 && !brake;
+  const overall = gear * fd;
+  const output = connected && overall > 0 ? rpm / overall : 0;
+
+  const eff = Math.max(0.84, 0.97 - wear * 0.08 - (Math.abs(g) === 1 ? 0.01 : 0));
+  const outTorque = connected ? torque * overall * eff : 0;
+
+  // BSFC curve (g/kWh)
+  const bsfc = 245 + 70 * Math.pow(1 - load, 2) + 25 * Math.pow(1 - throttle, 2);
+  const fuelKgH = power > 0.5 ? (power * bsfc / 1000) : 0;
+  const fuel = fuelKgH / 0.835; // diesel density ~0.835 kg/L
+  const lhv = 42.7; // MJ/kg
+  const heat = (fuelKgH * lhv) / 3.6; // kW fuel chemical input
+
+  // Thermal dynamics: first-order lag
+  const coolantTarget = ambient + (ignition ? 22 + load * 48 + throttle * 8 + wear * 8 : 0);
+  const exhaustTarget = ambient + (ignition ? 100 + throttle * 330 + load * 190 + wear * 45 : 0);
+  if (!compute.coolant) compute.coolant = coolantTarget;
+  if (!compute.exhaust) compute.exhaust = exhaustTarget;
+  if (running) {
+    compute.coolant += (coolantTarget - compute.coolant) * (1 - Math.exp(-dt / 18));
+    compute.exhaust += (exhaustTarget - compute.exhaust) * (1 - Math.exp(-dt / 5));
+  }
+  const coolant = compute.coolant, exhaust = compute.exhaust;
+
+  // Heuristic vibration model
+  const vib = ignition ? 0.5 + rpm / 2600 + load * 0.8 + wear * 4.5 + (clutch ? 0.5 : 0) + (Math.abs(g) === 1 ? 0.25 : 0) : 0;
+  const clutchSlip = clutch && g !== 0 ? Math.abs(rpm - (output * overall)) : 0;
+  const sfc = power > 0.5 ? bsfc : 0;
+
+  return { g, gear, load, throttle, ambient, wear, fd, rpm, output, torque, power, eff, outTorque, fuel, heat, coolant, exhaust, vib, sfc, connected, bsfc, clutchSlip };
+}
+
+function put(id, txt) {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = txt;
+}
+
+function update(dt = 0) {
+  const x = compute(dt);
+  const gearName = x.g === 0 ? 'Neutral' : x.g === -1 ? 'Reverse' : `${x.g}${['st','nd','rd'][x.g-1]||'th'} gear`;
+
+  // Update slider readouts
+  put('loadVal', `${Math.round(x.load * 100)}%`);
+  put('throttleVal', `${Math.round(x.throttle * 100)}%`);
+  put('ambientVal', `${x.ambient} °C`);
+  put('wearVal', `${Math.round(x.wear * 100)}%`);
+  put('ratioVal', `${x.fd.toFixed(2)}:1`);
+
+  // Update Top KPI Metrics
+  put('mEngine', fmt(x.rpm));
+  put('mOutput', fmt(x.output));
+  put('mTorque', fmt(x.torque, 1));
+  put('mPower', fmt(x.power, 1));
+  put('mCoolant', fmt(x.coolant, 0));
+  put('mExhaust', fmt(x.exhaust, 0));
+  put('mVib', fmt(x.vib, 1));
+  put('mHeat', fmt(x.heat, 1));
+  put('kpiGearRatio', x.gear ? `${x.gear.toFixed(2)}:1` : '0:1');
+
+  // KPI Progress Bars
+  if ($('barEngine')) $('barEngine').style.width = `${Math.min(100, (x.rpm / 3600) * 100)}%`;
+  if ($('barOutput')) $('barOutput').style.width = `${Math.min(100, (x.output / 3600) * 100)}%`;
+  if ($('barTorque')) $('barTorque').style.width = `${Math.min(100, (x.torque / 40) * 100)}%`;
+  if ($('barPower')) $('barPower').style.width = `${Math.min(100, (x.power / 14) * 100)}%`;
+  if ($('barCoolant')) $('barCoolant').style.width = `${Math.min(100, (x.coolant / 110) * 100)}%`;
+  if ($('barExhaust')) $('barExhaust').style.width = `${Math.min(100, (x.exhaust / 600) * 100)}%`;
+  if ($('barVib')) $('barVib').style.width = `${Math.min(100, (x.vib / 10) * 100)}%`;
+  if ($('barHeat')) $('barHeat').style.width = `${Math.min(100, (x.heat / 40) * 100)}%`;
+
+  // Calculated Table Values
+  put('tGear', `${x.gear.toFixed(2)} : 1`);
+  put('tOverall', x.gear ? `${(x.gear * x.fd).toFixed(2)} : 1` : 'Disconnected');
+  put('tTorque', `${fmt(x.torque, 1)} N·m`);
+  put('tPower', `${fmt(x.power, 1)} kW`);
+  put('tFuel', `${fmt(x.fuel, 1)} L/h`);
+  put('tSfc', x.sfc ? `${fmt(x.sfc)} g/kWh` : '—');
+  put('tHeat', `${fmt(x.heat, 1)} kW`);
+  put('tCoolHeat', `${fmt(x.heat * 0.2, 1)} kW`);
+  put('tEff', `${fmt(x.eff * 100, 1)}%`);
+  put('tDiff', `${fmt(Math.abs(x.rpm - x.output))} rpm`);
+  put('tSlip', `${fmt(x.clutchSlip)} rpm`);
+  put('tOutTorque', `${fmt(x.outTorque, 1)} N·m`);
+  put('tState', !ignition ? 'Engine shutdown' : clutch ? 'Clutch disengaged (decoupled)' : x.g === 0 ? 'Neutral idle' : brake ? 'Output braking load applied' : 'Coupled · synchronous drive');
+
+  put('vibHint', x.vib > 7 ? 'Critical high vibration' : x.vib > 4 ? 'Elevated operational vibration' : 'Normal model range');
+  $('vibHint').style.color = x.vib > 7 ? 'var(--critical)' : x.vib > 4 ? 'var(--warning)' : 'var(--text-muted)';
+
+  // Pedals & Ignition State
+  $('clutchText').textContent = clutch ? 'Disengaged' : 'Engaged';
+  $('clutchBtn').classList.toggle('active', clutch);
+  $('clutchBtn').textContent = clutch ? 'Release' : 'Depress';
+
+  $('brakeText').textContent = brake ? 'Applied' : 'Released';
+  $('brakeBtn').classList.toggle('active', brake);
+  $('brakeBtn').textContent = brake ? 'Release' : 'Apply';
+
+  $('ignitionText').textContent = ignition ? 'Running' : 'Stopped';
+  $('ignitionBtn').textContent = ignition ? 'Stop' : 'Start';
+  $('ignitionBtn').classList.toggle('active', ignition);
+
+  // Status indicator
+  $('runStatus').textContent = running ? (ignition ? 'SIMULATION RUNNING' : 'ENGINE SHUTDOWN') : 'SIMULATION PAUSED';
+  $('statusDot').style.background = running ? (ignition ? 'var(--accent-teal)' : 'var(--critical)') : 'var(--warning)';
+  $('statusDot').style.boxShadow = running ? (ignition ? '0 0 10px var(--accent-teal)' : '0 0 10px var(--critical)') : '0 0 10px var(--warning)';
+
+  // Synchronize gear gate UI buttons
+  document.querySelectorAll('.gear-btn').forEach(btn => {
+    btn.classList.toggle('active', +btn.getAttribute('data-gear') === x.g);
+  });
+
+  // 3D Viewport Synchronizer
+  if (threeModel) {
+    threeModel.sync({ gear: x.g, rpm: x.rpm, out: x.output, clutch, brake, ignition, wear: x.wear });
+  }
+
+  // Record historical buffer & render charts
+  if (elapsed % 0.5 < dt) {
+    hist.push({
+      t: elapsed,
+      rpm: x.rpm,
+      out: x.output,
+      coolant: x.coolant,
+      exhaust: x.exhaust,
+      vib: x.vib,
+      heat: x.heat,
+      fuel: x.fuel,
+      gear: x.g,
+      load: x.load,
+      throttle: x.throttle,
+      slip: x.clutchSlip
+    });
+    if (hist.length > 80) hist.shift();
+    drawCharts();
+  }
+}
+
+// Crisp High-DPI Chart Drawing
+function drawTelemetry(canvasId, series, maxY, unit = '') {
+  const canvas = $(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+
+  if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+  }
+
+  ctx.save();
+  ctx.scale(dpr, dpr);
+  const w = rect.width, h = rect.height;
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#080C14';
+  ctx.fillRect(0, 0, w, h);
+
+  const pad = { left: 45, right: 15, top: 15, bottom: 24 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+
+  ctx.font = '10px "JetBrains Mono", monospace';
+  ctx.strokeStyle = '#1E293B';
+  ctx.fillStyle = '#64748B';
+  ctx.lineWidth = 1;
+
+  // Y-axis gridlines & labels
+  const steps = 4;
+  for (let i = 0; i <= steps; i++) {
+    const y = pad.top + (ch * i) / steps;
+    ctx.beginPath();
+    ctx.setLineDash([4, 4]);
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(w - pad.right, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    const valLabel = fmt(maxY * (1 - i / steps));
+    ctx.fillText(valLabel, 6, y + 3.5);
+  }
+
+  // X-axis timestamps
+  for (let i = 0; i <= 4; i++) {
+    const x = pad.left + (cw * i) / 4;
+    const txt = i === 4 ? 'Now' : `-${(4 - i) * 10}s`;
+    ctx.fillText(txt, x - 10, h - 8);
+  }
+
+  // Draw series curves
+  series.forEach(s => {
+    if (!s.data || s.data.length === 0) return;
+    const pts = s.data.map((v, i) => {
+      const x = pad.left + (s.data.length > 1 ? i / (s.data.length - 1) : 1) * cw;
+      const y = pad.top + ch * (1 - Math.min(maxY, Math.max(0, v)) / maxY);
+      return { x, y };
+    });
+
+    // Optional subtle gradient area
+    if (s.fill) {
+      const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+      grad.addColorStop(0, s.fill);
+      grad.addColorStop(1, 'transparent');
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pad.top + ch);
+      pts.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(pts[pts.length - 1].x, pad.top + ch);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+
+    // Stroke line
+    ctx.beginPath();
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 2.0;
+    pts.forEach((p, i) => {
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+    ctx.stroke();
+  });
+
+  ctx.restore();
+}
+
+function drawCharts() {
+  drawTelemetry('rpmChart', [
+    { data: hist.map(h => h.rpm), color: '#22D3C5', fill: 'rgba(34, 211, 197, 0.12)' },
+    { data: hist.map(h => h.out), color: '#60A5FA', fill: 'rgba(96, 165, 250, 0.08)' }
+  ], 4000);
+
+  drawTelemetry('thermalChart', [
+    { data: hist.map(h => h.exhaust), color: '#FBBF24', fill: 'rgba(251, 191, 36, 0.08)' },
+    { data: hist.map(h => h.coolant), color: '#34D399', fill: 'rgba(52, 211, 153, 0.08)' },
+    { data: hist.map(h => h.vib * 30), color: '#A78BFA' }
+  ], 600);
+}
+
+// Gear Gate & Slider Event Handlers
+document.querySelectorAll('.gear-btn').forEach(btn => {
+  btn.onclick = () => {
+    $('gear').value = btn.getAttribute('data-gear');
+    update(0.05);
+  };
+});
+
+['load', 'throttle', 'ambient', 'wear', 'ratio'].forEach(id => {
+  $(id).addEventListener('input', () => update(0.05));
+});
+
+$('clutchBtn').onclick = () => { clutch = !clutch; update(0.05); };
+$('brakeBtn').onclick = () => { brake = !brake; update(0.05); };
+$('ignitionBtn').onclick = () => {
+  ignition = !ignition;
+  if (!ignition) compute.rpm = 0;
+  else compute.rpm = 700;
+  update(0.05);
+};
+
+$('pauseBtn').onclick = () => {
+  running = !running;
+  $('pauseBtn').innerHTML = running 
+    ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pause`
+    : `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Resume`;
+  update(0);
+};
+
+$('resetBtn').onclick = () => {
+  Object.entries(defaults).forEach(([k, v]) => $(k).value = v);
+  running = true; clutch = false; brake = false; ignition = true;
+  compute.rpm = 1500; hist = []; elapsed = 0;
+  $('pauseBtn').innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pause`;
+  update(0.05);
+};
+
+// Preset Profiles
+$('presetIdle').onclick = () => {
+  $('gear').value = '0'; $('load').value = 10; $('throttle').value = 0;
+  clutch = false; brake = false; ignition = true;
+  update(0.05);
+};
+$('presetCruise').onclick = () => {
+  $('gear').value = '3'; $('load').value = 40; $('throttle').value = 45;
+  clutch = false; brake = false; ignition = true;
+  update(0.05);
+};
+$('presetDyno').onclick = () => {
+  $('gear').value = '4'; $('load').value = 90; $('throttle').value = 100;
+  clutch = false; brake = false; ignition = true;
+  update(0.05);
+};
+$('presetSevere').onclick = () => {
+  $('gear').value = '1'; $('wear').value = 85; $('load').value = 75;
+  clutch = false; brake = false; ignition = true;
+  update(0.05);
+};
+
+// CSV Telemetry Export
+$('csvBtn').onclick = () => {
+  const headers = ['time_s','engine_rpm','output_rpm','vibration_rms','coolant_c','exhaust_c','fuel_heat_kw','fuel_l_h','gear','load_pct','throttle_pct','clutch_slip_rpm'];
+  const rows = [headers, ...hist.map(h => [
+    h.t.toFixed(1), h.rpm.toFixed(1), h.out.toFixed(1), h.vib.toFixed(2),
+    h.coolant.toFixed(1), h.exhaust.toFixed(1), h.heat.toFixed(2), h.fuel.toFixed(2),
+    h.gear, (h.load * 100).toFixed(1), (h.throttle * 100).toFixed(1), h.slip.toFixed(1)
+  ])];
+  const blob = new Blob([rows.map(r => r.join(',')).join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `transmission_telemetry_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '_')}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+// Main Simulation Loop
+function loop(now) {
+  const dt = Math.min(0.1, (now - last) / 1000);
+  last = now;
+  if (running) {
+    elapsed += dt;
+    update(dt);
+  }
+  requestAnimationFrame(loop);
+}
+
+// Procedural 3D Cutaway Powertrain Model
+function initThreeModel() {
+  const host = $('threeViewport');
+  if (!window.THREE) {
+    $('loading3d').innerHTML = '<strong>3D Graphics Engine Offline</strong><span>Connect to internet to load Three.js renderer CDN.</span>';
+    return;
+  }
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#06090F');
+  scene.fog = new THREE.FogExp2('#06090F', 0.038);
+
+  const camera = new THREE.PerspectiveCamera(34, host.clientWidth / host.clientHeight, 0.1, 100);
+  camera.position.set(8.8, 6.8, 10.5);
+  camera.lookAt(0, -0.1, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(host.clientWidth, host.clientHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.25;
+  host.appendChild(renderer.domElement);
+
+  // Lighting
+  scene.add(new THREE.HemisphereLight(0xE2E8F0, 0x080B12, 1.8));
+  const keyLight = new THREE.DirectionalLight(0xFFFFFF, 3.2);
+  keyLight.position.set(6, 10, 8);
+  scene.add(keyLight);
+
+  const rimLight = new THREE.DirectionalLight(0x60A5FA, 2.4);
+  rimLight.position.set(-8, 3, -6);
+  scene.add(rimLight);
+
+  const warmLight = new THREE.PointLight(0xFBBF24, 18, 16);
+  warmLight.position.set(-2, 3, 2);
+  scene.add(warmLight);
+
+  const tealLight = new THREE.PointLight(0x22D3C5, 12, 12);
+  tealLight.position.set(1.5, 2, -1);
+  scene.add(tealLight);
+
+  // Material Palette
+  const mat = (color, metalness = 0.3, roughness = 0.35, transparent = false, opacity = 1) =>
+    new THREE.MeshStandardMaterial({ color, metalness, roughness, transparent, opacity, side: transparent ? THREE.DoubleSide : THREE.FrontSide, depthWrite: !transparent });
+
+  const steel = mat('#8B9BAA', 0.88, 0.28);
+  const darkSteel = mat('#2D3B47', 0.85, 0.35);
+  const shaftMat = mat('#9FB2C2', 0.92, 0.22);
+  const brass = mat('#D4AF37', 0.82, 0.28);
+  const blue = mat('#60A5FA', 0.65, 0.25);
+  const activeMat = new THREE.MeshStandardMaterial({ color: '#22D3C5', metalness: 0.75, roughness: 0.25, emissive: '#0A423D', emissiveIntensity: 0.35 });
+  const casing = mat('#475569', 0.35, 0.25, true, 0.12);
+
+  const root = new THREE.Group();
+  scene.add(root);
+
+  function cylinder(parent, r1, r2, len, material, pos, axis = 'x', segments = 48) {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, len, segments), material);
+    if (axis === 'x') m.rotation.z = Math.PI / 2;
+    else if (axis === 'z') m.rotation.x = Math.PI / 2;
+    m.position.set(...pos);
+    parent.add(m);
+    return m;
+  }
+
+  function box(parent, sz, material, pos) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(...sz), material);
+    m.position.set(...pos);
+    parent.add(m);
+    return m;
+  }
+
+  function gear(parent, teeth, radius, width, x, y, z, material) {
+    const pts = [];
+    const steps = teeth * 4;
+    for (let i = 0; i < steps; i++) {
+      const a = (i / steps) * Math.PI * 2;
+      const phase = i % 4;
+      const r = radius * (phase === 1 || phase === 2 ? 1.075 : 1);
+      pts.push(new THREE.Vector2(Math.cos(a) * r, Math.sin(a) * r));
+    }
+    const shape = new THREE.Shape();
+    shape.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) shape.lineTo(pts[i].x, pts[i].y);
+    shape.closePath();
+
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: width, bevelEnabled: true, bevelSegments: 1, steps: 1, bevelSize: 0.035, bevelThickness: 0.025, curveSegments: 1 });
+    geo.computeVertexNormals();
+    const mesh = new THREE.Mesh(geo, material);
+    mesh.rotation.y = Math.PI / 2;
+    mesh.position.set(x - width / 2, y, z);
+    parent.add(mesh);
+    const hub = cylinder(parent, radius * 0.24, radius * 0.24, width * 1.15, shaftMat, [x, y, z], 'x', 24);
+    return { mesh, hub, teeth, radius, baseMaterial: material };
+  }
+
+  // Bedplate & Mounts
+  box(root, [9.7, 0.16, 4.6], mat('#0F172A', 0.25, 0.6), [0, -1.25, 0]);
+  for (let x = -3.8; x <= 3.8; x += 1.9) {
+    for (let z of [-1.6, 1.6]) cylinder(root, 0.12, 0.12, 0.5, darkSteel, [x, -1.0, z], 'y', 20);
+  }
+
+  // Engine block (Yanmar 2GM20F 2-cyl block representation)
+  const eng = box(root, [1.65, 1.55, 1.65], mat('#1E293B', 0.65, 0.35), [-3.45, 0, 0]);
+  for (let i = 0; i < 2; i++) {
+    box(root, [0.38, 0.95, 0.85], mat('#334155', 0.6, 0.32), [-3.75 + i * 0.6, 0.15, 0.86]);
+  }
+
+  // Dual-Mass Flywheel & Clutch Assembly
+  const fly = cylinder(root, 0.91, 0.91, 0.22, brass, [-2.45, 0, 0], 'x', 64);
+  const flyRim = cylinder(root, 1.0, 1.0, 0.11, darkSteel, [-2.58, 0, 0], 'x', 64);
+  const clutchDisc = cylinder(root, 0.64, 0.64, 0.35, activeMat, [-2.2, 0, 0], 'x', 48);
+
+  // Transmission Shafts
+  const inputShaft = cylinder(root, 0.13, 0.13, 4.7, shaftMat, [-0.05, 0.28, -0.54], 'x', 32);
+  const outputShaft = cylinder(root, 0.13, 0.13, 4.8, shaftMat, [0.0, -0.28, 0.56], 'x', 32);
+
+  // Constant-Mesh 5-Speed Gear Pairs
+  const pairs = [
+    { g: 1, teethA: 14, teethB: 50, x: -1.35, rA: 0.48, rB: 1.00 },
+    { g: 2, teethA: 20, teethB: 42, x: -0.55, rA: 0.60, rB: 0.94 },
+    { g: 3, teethA: 25, teethB: 35, x: 0.25, rA: 0.72, rB: 0.90 },
+    { g: 4, teethA: 32, teethB: 32, x: 1.05, rA: 0.82, rB: 0.82 },
+    { g: 5, teethA: 35, teethB: 28, x: 1.85, rA: 0.90, rB: 0.72 }
+  ];
+
+  const gearObjects = [];
+  for (const pair of pairs) {
+    const a = gear(root, pair.teethA, pair.rA, 0.32, pair.x, 0.28, -0.54, steel);
+    const b = gear(root, pair.teethB, pair.rB, 0.32, pair.x, -0.28, 0.56, darkSteel);
+    const sync = cylinder(root, 0.34, 0.34, 0.22, blue, [pair.x, -0.28, 0.56], 'x', 40);
+    gearObjects.push({ ...pair, a, b, sync });
+  }
+
+  // Selector rails & differential
+  for (let z of [-0.54, 0.56]) {
+    for (let x of [-2.0, 2.5]) cylinder(root, 0.19, 0.19, 0.22, brass, [x, z < 0 ? 0.28 : -0.28, z], 'x', 32);
+  }
+  for (let y of [-0.28, 0.28]) {
+    cylinder(root, 0.08, 0.08, 4.6, brass, [0, y, -1.04], 'x', 24);
+  }
+
+  const diff = cylinder(root, 0.62, 0.62, 0.62, mat('#334155', 0.75, 0.29), [3.0, -0.08, 0], 'x', 48);
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    const pin = box(root, [0.28, 0.11, 0.12], brass, [3.25, -0.08 + Math.cos(a) * 0.47, Math.sin(a) * 0.47]);
+    pin.rotation.x = a;
+  }
+  cylinder(root, 0.12, 0.12, 1.7, shaftMat, [3.85, -0.08, 0], 'x', 32);
+
+  // Translucent Casing with Metallic Frame
+  const shell = new THREE.Mesh(new THREE.BoxGeometry(5.2, 2.25, 2.45), casing);
+  shell.position.set(0.25, 0, 0);
+  root.add(shell);
+
+  for (let x of [-2.35, 2.85]) {
+    for (let y of [-1.05, 1.05]) {
+      for (let z of [-1.13, 1.13]) cylinder(root, 0.045, 0.045, 2.35, brass, [x, y, z], 'z', 16);
+    }
+  }
+
+  // Crisp 3D Text Sprites
+  function makeSpriteLabel(text, pos, color = '#22D3C5') {
+    const c = document.createElement('canvas');
+    c.width = 512; c.height = 100;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = 'rgba(8, 11, 18, 0.88)';
+    ctx.roundRect(4, 4, 504, 92, 14);
+    ctx.fill();
+    ctx.strokeStyle = '#263244';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(36, 50, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.font = 'bold 30px "Inter", sans-serif';
+    ctx.fillStyle = '#F1F5F9';
+    ctx.fillText(text, 64, 60);
+
+    const tex = new THREE.CanvasTexture(c);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+    sp.scale.set(2.4, 0.47, 1);
+    sp.position.set(...pos);
+    root.add(sp);
+    return sp;
+  }
+
+  makeSpriteLabel('YANMAR DIESEL', [-3.5, 1.4, 0], '#60A5FA');
+  makeSpriteLabel('CLUTCH ASSEMBLY', [-2.2, 1.2, 0], '#FBBF24');
+  makeSpriteLabel('5-SPEED TRANSAXLE', [0.25, 1.5, 0], '#22D3C5');
+  makeSpriteLabel('OUTPUT / DIFF', [3.5, 1.15, 0], '#34D399');
+
+  // Studio Floor Grid
+  const grid = new THREE.GridHelper(16, 32, '#263244', '#111827');
+  grid.position.y = -1.17;
+  scene.add(grid);
+
+  // Orbit Controls State
+  let autoRotate = true, drag = false, lastX = 0, lastY = 0, theta = 0.65, phi = 1.08, radius = 12.0;
+
+  function cameraUpdate() {
+    phi = Math.max(0.25, Math.min(1.48, phi));
+    camera.position.set(radius * Math.sin(phi) * Math.sin(theta), radius * Math.cos(phi), radius * Math.sin(phi) * Math.cos(theta));
+    camera.lookAt(0, -0.05, 0);
+  }
+  cameraUpdate();
+
+  renderer.domElement.addEventListener('pointerdown', e => {
+    drag = true; lastX = e.clientX; lastY = e.clientY;
+    renderer.domElement.setPointerCapture(e.pointerId);
+  });
+  renderer.domElement.addEventListener('pointermove', e => {
+    if (!drag) return;
+    theta -= (e.clientX - lastX) * 0.007;
+    phi += (e.clientY - lastY) * 0.007;
+    lastX = e.clientX; lastY = e.clientY;
+    cameraUpdate();
+  });
+  renderer.domElement.addEventListener('pointerup', () => drag = false);
+  renderer.domElement.addEventListener('pointercancel', () => drag = false);
+  renderer.domElement.addEventListener('wheel', e => {
+    radius = Math.max(6.5, Math.min(18, radius + e.deltaY * 0.008));
+    cameraUpdate();
+  }, { passive: true });
+
+  // Camera preset buttons
+  $('rotateBtn').onclick = () => {
+    autoRotate = !autoRotate;
+    $('rotateBtn').classList.toggle('active', autoRotate);
+    $('rotateBtn').textContent = autoRotate ? 'Auto Rotate' : 'Manual View';
+  };
+  $('resetViewBtn').onclick = () => { theta = 0.65; phi = 1.08; radius = 12.0; cameraUpdate(); };
+  $('viewDefault').onclick = () => { theta = 0.65; phi = 1.08; radius = 12.0; cameraUpdate(); };
+  $('viewGears').onclick = () => { theta = 0.2; phi = 0.85; radius = 7.5; cameraUpdate(); };
+  $('viewDiff').onclick = () => { theta = -0.55; phi = 0.95; radius = 8.0; cameraUpdate(); };
+
+  let currentGear = 3;
+  function sync(state) {
+    const next = state.gear;
+    $('modelMode').textContent = state.clutch ? 'CLUTCH DISENGAGED · SYNCHRONIZER SLEEVE TRANSLATION' : (next === 0 ? 'NEUTRAL · FREE-SPINNING COUNTERSHAFT' : `GEAR ${next === -1 ? 'R' : next} ENGAGED · DIRECT KINEMATIC DRIVE`);
+    if (next !== currentGear) {
+      currentGear = next;
+      $('selectedGearLabel').textContent = 'Selected: ' + (next === 0 ? 'Neutral (0:1)' : next === -1 ? 'Reverse (3.30:1)' : `${next}${['st','nd','rd'][next-1]||'th'} gear (${gearRatios[next].toFixed(2)}:1)`);
+    }
+
+    const inputOmega = state.ignition ? (state.rpm / 60) * 2 * Math.PI : 0;
+    fly.rotation.x += inputOmega * 0.016;
+    flyRim.rotation.x += inputOmega * 0.016;
+    clutchDisc.rotation.x += inputOmega * 0.016 * (state.clutch ? 0.15 : 1);
+    inputShaft.rotation.x += inputOmega * 0.016;
+    outputShaft.rotation.x += (state.out / 60) * 2 * Math.PI * 0.016;
+
+    for (const item of gearObjects) {
+      const selected = next === item.g;
+      item.a.mesh.material = selected ? activeMat : steel;
+      item.b.mesh.material = selected ? activeMat : darkSteel;
+      item.sync.material = selected ? activeMat : blue;
+
+      const target = selected && !state.clutch ? item.x + 0.22 : item.x - 0.18;
+      item.sync.position.x += (target - item.sync.position.x) * 0.2;
+      item.a.mesh.rotation.x += inputOmega * 0.016;
+      item.b.mesh.rotation.x -= inputOmega * 0.016 * (item.teethA / item.teethB);
+    }
+
+    diff.rotation.x += (state.out / 60) * 2 * Math.PI * 0.016;
+    shell.material.opacity = state.wear > 0.65 ? 0.06 : 0.12;
+    clutchDisc.material = state.clutch ? darkSteel : activeMat;
+    fly.material = state.ignition ? brass : darkSteel;
+    eng.material.color.set(state.ignition ? '#1E293B' : '#0F172A');
+    root.position.y = state.brake ? -0.035 : 0;
+    if (state.brake) diff.material.color.set('#F87171');
+    else diff.material.color.set('#334155');
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (autoRotate && !drag) {
+      theta += 0.0016;
+      cameraUpdate();
+    }
+    renderer.render(scene, camera);
+  }
+
+  const ro = new ResizeObserver(() => {
+    const w = host.clientWidth, h = host.clientHeight;
+    if (w && h) {
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+  });
+  ro.observe(host);
+
+  $('loading3d').style.display = 'none';
+  animate();
+  threeModel = { sync };
+}
+
 initThreeModel();
-
-compute.rpm=1500;update(.05);requestAnimationFrame(loop);
+compute.rpm = 1500;
+update(0.05);
+requestAnimationFrame(loop);
 </script>
-</body></html>
+</body>
+</html>
