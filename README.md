@@ -1,30 +1,44 @@
-# Transmission Dynamics Studio — Manual Transmission & Powertrain Simulator (PRO v2.5)
+# Transmission Dynamics Studio — Manual Transmission & Powertrain Simulator (PRO v3.0)
 
-An interactive, browser-based 3D manual transmission and powertrain engineering simulator and virtual test bench. It models the kinematics, thermodynamics, mechanical losses, and dynamic response of a manual transaxle coupled to a diesel engine benchmarked against the published specifications of the **Yanmar 2GM20F**.
-
-![Screenshot](screenshot.png) *(optional preview)*
+An interactive, browser-based 3D manual transmission and powertrain engineering simulator and virtual test bench built with a **Graphite & Black industrial aesthetic**, discrete transient rotational mechanics ($J_{eff} \frac{d\omega}{dt} = T_{ind} - T_{fric} - T_{load}$), energy-balance thermodynamics, an **8-point physical consistency validation engine**, and comprehensive engineering dataset export capabilities.
 
 ---
 
 ## 🌟 Key Features
 
-### 1. Dual Operational Modes
-* **🏎️ 3D Live Cockpit**: Real-time interactive driving mode with live 3D cutaway powertrain, tactile gear selector gate, automotive pedal switchboard, 8 KPI telemetry metric cards, and live strip charts.
-* **📊 Test Cases & Data Bench**: Comprehensive engineering test bench for running structured test suites, inspecting numerical time series with pagination, overlaying comparison curves, analyzing statistical distributions, and exporting data.
+### 1. Dual Operational Modes & Graphite UI
+* **🏎️ 3D Live Cockpit**: Real-time interactive driving mode with live 3D cutaway powertrain, tactile gear selector gate, automotive pedal switchboard, 8 KPI telemetry metric cards, and live strip charts styled in a premium graphite, black, and metallic silver palette.
+* **📊 Test Cases & Data Bench**: Comprehensive engineering test bench for running structured test suites, inspecting numerical time series with pagination, overlaying comparison curves, analyzing statistical distributions, validating physical integrity, and exporting data.
 
 ### 2. Interactive 3D Powertrain Cutaway (Three.js)
 * **Procedural Gear Meshes**: Custom extruded 2D spur gears for 5 forward speeds and reverse.
 * **Dynamic Digital Twin**: Real-time rotating crankshaft, dual-mass flywheel, clutch disc, input/output countershafts, and differential.
-* **Kinematic Feedback**: Synchronizer sleeves visibly slide along the countershaft into the selected gear; active gear pairs highlight in anodized teal (`#22D3C5`).
+* **Kinematic Feedback**: Synchronizer sleeves visibly slide along the countershaft into the selected gear; active gear pairs highlight in satin metallic silver (`#C0C5CC`).
+* **Studio Lighting**: Studio-grade neutral white key lighting (`0xFFFFFF`), cool grey rim lighting, and warm amber combustion glow.
 * **Camera Controls**: Orbit controls (drag to orbit, pan, mouse wheel to zoom), auto-rotate, and view presets (*Isometric*, *Gearset Close-Up*, *Differential*, and *Reset View*).
 
-### 3. Kinematics, Dynamics & Thermodynamics
-* **Engine Dynamics**: Transient exponential lag filter with load-dependent speed curves (idle: 700 RPM, operating limit: 3,600 RPM).
+### 3. Engineering-Grade Kinematics, Dynamics & Thermodynamics
+* **Discrete Rotational Dynamics**: Numerically integrated rotational equation of motion:
+  $$J_{eff} \frac{d\omega}{dt} = T_{ind}(\omega, \alpha) - T_{fric}(\omega) - T_{load,e}$$
+  where $J_{eff} = J_{eng} + \frac{J_{veh}}{(i_g \cdot i_{fd})^2}$ when the clutch is locked.
 * **Torque & Power Curves**: Piecewise torque curve calibrated to Yanmar 2GM20F continuous (11.8 kW @ 3,400 RPM / 33.1 N·m) and 1-hour ratings (13.4 kW @ 3,600 RPM / 35.5 N·m).
-* **Gear Ratios**: Reverse (3.30:1), Neutral (0:1), 1st (3.60:1), 2nd (2.10:1), 3rd (1.40:1), 4th (1.00:1), 5th Overdrive (0.80:1), plus configurable Final Drive (2.00:1 to 5.00:1).
-* **Thermodynamics**: First-order dynamic thermal lag response for coolant ($\tau = 18\text{ s}$) and exhaust gas ($\tau = 5\text{ s}$).
-* **Fuel & Energy**: Volumetric fuel consumption (L/h), cumulative fuel consumption (L), BSFC curve (g/kWh), and fuel chemical heat release based on diesel lower heating value ($42.7\text{ MJ/kg}$).
-* **Mechanical Losses & Vibration**: Transmission efficiency degradation modeled against backlash/wear, clutch slip angular velocity, and heuristic vibration amplitude (mm/s RMS).
+* **Friction & Idle Governor**: Quadratic engine friction model ($T_{fric} = c_0 + c_1 \omega + c_2 \omega^2$) coupled to a proportional-integral idle governor maintaining 700 RPM.
+* **Clutch Friction Limit & Engine Stall**: Coulomb clutch capacity model with dynamic slip calculation; realistic engine stall triggers when load torque drops RPM below critical threshold ($< 350\text{ RPM}$).
+* **Thermodynamics & Energy Balance**: Dynamic lumped-capacitance thermal model for coolant ($C_{cool} = 35\text{ kJ/K}$) and exhaust ($C_{exh} = 8\text{ kJ/K}$):
+  $$C_{cool} \frac{dT_{cool}}{dt} = \dot{Q}_{cool,in} - UA_{rad}(T_{cool} - T_{amb})$$
+* **Fuel & Emissions**: Instantaneous BSFC, volumetric consumption rate (L/h), cumulative consumption (L), and heat release via lower heating value ($42.7\text{ MJ/kg}$).
+* **Model Configuration Modal**: Live tuning of physical constants (engine inertia $J_{eng}$, vehicle mass $m$, thermal capacities $C$, radiator conductance $UA$, diesel LHV) without code modification.
+
+### 4. 8-Point Physical Consistency Validation Engine
+Every simulation run automatically verifies physical conservation laws:
+1. **First Law Thermal Conservation**: $\Delta E_{cool} \approx Q_{cool,in} - Q_{rad,out}$
+2. **First Law Mechanical Conservation**: $\int P_{ind} dt \approx \Delta E_{kin} + W_{fric} + W_{load}$
+3. **Gear Ratio Consistency**: $\omega_{in} / \omega_{out} = i_g$ when clutch is locked
+4. **Second Law / Friction Non-Negativity**: $W_{fric} \ge 0$
+5. **Thermodynamic Directionality**: $T_{cool} \ge T_{amb}$
+6. **Efficiency Bound**: $0\% \le \eta \le 100\%$
+7. **Fuel Mass & Chemical Energy Consistency**: $E_{chem} = m_{fuel} \cdot LHV$
+8. **Clutch Energy Conservation**: $W_{slip} \ge 0$
 
 ---
 
@@ -77,6 +91,12 @@ Double-click **`start_local_server.bat`** in this folder. It starts the local se
 python -m http.server 8000
 ```
 Then navigate to `http://localhost:8000` in any modern web browser (Chrome, Edge, Firefox, Brave).
+
+---
+
+## 🌐 Live Online Demo
+The simulator is hosted live on GitHub Pages:
+👉 **[https://anishhn.github.io/manual-transmission-simulator/](https://anishhn.github.io/manual-transmission-simulator/)**
 
 ---
 
