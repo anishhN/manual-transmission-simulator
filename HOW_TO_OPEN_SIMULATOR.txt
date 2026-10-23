@@ -1,0 +1,12 @@
+TRANSMISSION DYNAMICS STUDIO — UPDATED BUILD
+
+1. Extract this ZIP package.
+2. Open manual_transmission_simulator.html in Google Chrome or Microsoft Edge.
+3. Keep internet access enabled so Three.js can load.
+4. Change gear, throttle, load, clutch, brake, and ignition controls. The 3D model responds with selected-gear highlighting, synchronizer-collar movement, gear/shaft rotation, clutch and engine state changes.
+5. If an older copy is open, close it and open this newly extracted HTML file.
+
+DATA QUALITY:
+Published Yanmar 2GM20F engine specifications: 0.636 L, 75 x 72 mm bore/stroke, 23:1 compression, 11.8 kW at 3400 rpm continuous, and 13.4 kW at 3600 rpm one-hour rating.
+The five-speed gearbox is generic; gear ratios are illustrative, not published for this engine. Intermediate torque, fuel use, temperature and vibration remain model estimates, not validated test readings.
+Source: https://www.yanmar.no/theme/yanmarportal/uploadedFiles/Marine/productDownloads/Leisure-Previous-Models/Operation-Manuals/GM-OP-Manual-Multi.pdf

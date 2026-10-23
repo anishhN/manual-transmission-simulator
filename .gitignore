@@ -1,0 +1,7 @@
+# Packages / Archives
+*.zip
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
