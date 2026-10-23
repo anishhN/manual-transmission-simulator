@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Transmission Dynamics Studio — Automotive Powertrain Simulator</title>
+<title>Transmission Dynamics Studio — Automotive Powertrain Simulator & Test Bench</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -40,26 +40,25 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Header */
 header {
   border-bottom: 1px solid var(--border);
-  background: rgba(13, 18, 28, 0.92);
+  background: rgba(13, 18, 28, 0.94);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 12px 24px;
+  padding: 10px 24px;
 }
 .header-inner {
-  max-width: 1600px;
+  max-width: 1650px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 .brand-group {
@@ -102,6 +101,41 @@ header {
   font-size: 11px;
   color: var(--text-muted);
 }
+
+/* Main Navigation Mode Switcher */
+.nav-tabs {
+  display: flex;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 3px;
+}
+.nav-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.nav-tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+.nav-tab-btn.active {
+  background: var(--panel-elevated);
+  color: var(--accent-teal);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
 .status-pill {
   display: flex;
   align-items: center;
@@ -123,6 +157,7 @@ header {
   box-shadow: 0 0 10px var(--accent-teal);
   transition: background 0.25s, box-shadow 0.25s;
 }
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -138,7 +173,7 @@ header {
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
-  padding: 7px 14px;
+  padding: 7px 13px;
   border-radius: 7px;
   border: 1px solid var(--border);
   background: var(--panel);
@@ -166,15 +201,33 @@ header {
   color: #080B12;
   box-shadow: 0 4px 14px rgba(34, 211, 197, 0.25);
 }
+.btn-danger {
+  background: rgba(248, 113, 113, 0.12);
+  border-color: rgba(248, 113, 113, 0.35);
+  color: var(--critical);
+}
+.btn-danger:hover {
+  background: var(--critical);
+  color: #080B12;
+}
 
 /* Main Dashboard Container */
 main {
-  max-width: 1600px;
+  max-width: 1650px;
   margin: 0 auto;
-  padding: 20px 24px 40px;
+  padding: 18px 24px 40px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.view-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.view-section.hidden {
+  display: none !important;
 }
 
 /* Top KPI Grid */
@@ -187,7 +240,7 @@ main {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 14px 16px;
+  padding: 13px 15px;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -226,11 +279,11 @@ main {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  margin: 8px 0 6px;
+  margin: 7px 0 5px;
 }
 .kpi-value {
   font-family: var(--font-mono);
-  font-size: 23px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
@@ -281,7 +334,7 @@ main {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
 .panel-header {
-  padding: 12px 18px;
+  padding: 11px 18px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -324,7 +377,7 @@ main {
   overflow: hidden;
 }
 .viewport-toolbar {
-  height: 42px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -501,7 +554,6 @@ main {
 .gear-btn.active small {
   color: #72e5dc;
 }
-/* Hidden fallback native select for accessibility & automation */
 #gear { display: none; }
 
 /* Automotive Pedal Switchboard */
@@ -761,9 +813,456 @@ canvas.telemetry-chart {
   text-decoration: underline;
 }
 
+/* ========================================================
+   TEST CASES & DATA BENCH SECTION STYLES
+   ======================================================== */
+.tc-workbench-grid {
+  display: grid;
+  grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
+  gap: 20px;
+}
+.tc-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
+.tc-stats-chips {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tc-stat-chip {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.tc-stat-chip strong {
+  color: var(--text-primary);
+  margin-right: 3px;
+}
+
+/* Test List Panel */
+.tc-list-panel {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 180px);
+  min-height: 650px;
+}
+.tc-list-tools {
+  padding: 10px 14px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.tc-search-input {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  outline: none;
+}
+.tc-search-input:focus {
+  border-color: var(--accent-teal);
+}
+.tc-scrollable-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tc-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.18s ease;
+  cursor: pointer;
+  position: relative;
+}
+.tc-card:hover {
+  border-color: #3b4d66;
+  background: #101725;
+}
+.tc-card.selected {
+  border-color: var(--accent-teal);
+  background: rgba(34, 211, 197, 0.05);
+}
+.tc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tc-id-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--panel-elevated);
+  border: 1px solid var(--border);
+  color: var(--accent-teal);
+}
+.tc-status-tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+}
+.tc-status-tag.not-run { background: #1E293B; color: #94A3B8; }
+.tc-status-tag.running { background: rgba(34, 211, 197, 0.15); color: var(--accent-teal); border: 1px solid var(--accent-teal); }
+.tc-status-tag.completed { background: rgba(52, 211, 153, 0.15); color: var(--success); }
+.tc-status-tag.failed { background: rgba(248, 113, 113, 0.15); color: var(--critical); }
+
+.tc-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.tc-card-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.tc-card-metrics {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  background: rgba(0,0,0,0.25);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.tc-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+.tc-action-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn-icon {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-icon:hover {
+  background: var(--panel-elevated);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+/* Data Explorer Right Workspace */
+.tc-data-panel {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 180px);
+  min-height: 650px;
+}
+.tc-sub-nav {
+  display: flex;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  gap: 8px;
+}
+.tc-sub-tab {
+  padding: 12px 14px;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  border-top: none; border-left: none; border-right: none;
+  transition: all 0.15s;
+}
+.tc-sub-tab:hover {
+  color: var(--text-primary);
+}
+.tc-sub-tab.active {
+  color: var(--accent-teal);
+  border-bottom-color: var(--accent-teal);
+}
+.tc-sub-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Time Series Table Explorer */
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dataset-table-wrap {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #080C14;
+  max-height: 440px;
+}
+.dataset-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.dataset-table th {
+  position: sticky;
+  top: 0;
+  background: #0E1624;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  user-select: none;
+}
+.dataset-table th:first-child, .dataset-table th:nth-child(2) {
+  text-align: left;
+}
+.dataset-table td {
+  padding: 7px 12px;
+  border-bottom: 1px solid #131E2D;
+  text-align: right;
+  color: var(--text-secondary);
+}
+.dataset-table td:first-child, .dataset-table td:nth-child(2) {
+  text-align: left;
+  color: var(--text-primary);
+}
+.dataset-table tr:hover td {
+  background: rgba(34, 211, 197, 0.04);
+}
+.table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* Stats Cards in Tab B */
+.stats-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.stat-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+.stat-box-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-top: 3px;
+  font-family: var(--font-mono);
+}
+.stat-row span:first-child { color: var(--text-muted); }
+.stat-row span:last-child { color: var(--text-primary); font-weight: 600; }
+
+/* Multi-Test Comparison Chart Canvas */
+.comparison-chart-wrap {
+  background: #080C14;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+#compareChart {
+  width: 100%;
+  height: 320px;
+  display: block;
+}
+
+/* Export Cards Grid */
+.export-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.export-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.18s ease;
+}
+.export-card:hover {
+  border-color: #3b4d66;
+  transform: translateY(-2px);
+}
+.export-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--panel-elevated);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-teal);
+}
+.export-card h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.export-card p {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 9, 15, 0.85);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.hidden { display: none !important; }
+.modal-window {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 620px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.modal-header {
+  padding: 14px 18px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-header h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.modal-body {
+  padding: 18px;
+  max-height: 75vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.form-input {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  outline: none;
+}
+.form-input:focus { border-color: var(--accent-teal); }
+.modal-footer {
+  padding: 12px 18px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 /* Footer */
 footer {
-  max-width: 1600px;
+  max-width: 1650px;
   margin: 0 auto;
   padding: 0 24px 30px;
   display: flex;
@@ -780,6 +1279,7 @@ footer {
 /* Responsive adjustments */
 @media (max-width: 1100px) {
   .workspace-grid { grid-template-columns: 1fr; }
+  .tc-workbench-grid { grid-template-columns: 1fr; }
   .charts-grid { grid-template-columns: 1fr; }
   .tables-grid { grid-template-columns: 1fr; }
   #threeViewport { height: 380px; }
@@ -791,10 +1291,7 @@ footer {
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .gear-grid { grid-template-columns: repeat(4, 1fr); }
   #threeViewport { height: 300px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
+  .form-row { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -810,9 +1307,21 @@ footer {
         </svg>
       </div>
       <div class="brand-text">
-        <h1>Transmission Dynamics Studio <span class="badge-version">PRO v2.4</span></h1>
-        <div class="brand-subtitle">Powertrain Telemetry & 5-Speed Transaxle Digital Twin · Yanmar 2GM20F Benchmark</div>
+        <h1>Transmission Dynamics Studio <span class="badge-version">TEST SUITE v2.5</span></h1>
+        <div class="brand-subtitle">Powertrain Telemetry, Digital Twin & Dataset Bench · Yanmar 2GM20F Benchmark</div>
       </div>
+    </div>
+
+    <!-- Navigation Mode Switcher -->
+    <div class="nav-tabs">
+      <button class="nav-tab-btn active" id="tabLiveBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        3D Live Cockpit
+      </button>
+      <button class="nav-tab-btn" id="tabTestBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Test Cases & Data Bench
+      </button>
     </div>
 
     <div class="status-pill">
@@ -831,317 +1340,321 @@ footer {
       </button>
       <button class="btn btn-primary" id="csvBtn" title="Export session data as CSV">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        Export CSV
+        Export Live Log
       </button>
     </div>
   </div>
 </header>
 
 <main>
-  <!-- Top KPI Telemetry Grid -->
-  <section class="kpi-grid">
-    <div class="kpi-card accent-teal">
-      <div class="kpi-label">Engine Speed <span>CRANKSHAFT</span></div>
-      <div class="kpi-value-row">
-        <span class="kpi-value" id="mEngine">1,500</span>
-        <span class="kpi-unit">rpm</span>
+  <!-- ==========================================
+       SECTION A: LIVE DIGITAL TWIN & COCKPIT
+       ========================================== -->
+  <div class="view-section" id="sectionLive">
+    <!-- Top KPI Telemetry Grid -->
+    <section class="kpi-grid">
+      <div class="kpi-card accent-teal">
+        <div class="kpi-label">Engine Speed <span>CRANKSHAFT</span></div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="mEngine">1,500</span>
+          <span class="kpi-unit">rpm</span>
+        </div>
+        <div class="kpi-progress"><div class="kpi-progress-bar" id="barEngine" style="width: 41%;"></div></div>
+        <div class="kpi-hint"><span>Idle: 700</span><span>Max: 3600</span></div>
       </div>
-      <div class="kpi-progress"><div class="kpi-progress-bar" id="barEngine" style="width: 41%;"></div></div>
-      <div class="kpi-hint"><span>Idle: 700</span><span>Max: 3600</span></div>
-    </div>
 
-    <div class="kpi-card accent-blue">
-      <div class="kpi-label">Gearbox Output <span>DRIVESHAFT</span></div>
-      <div class="kpi-value-row">
-        <span class="kpi-value" id="mOutput">1,071</span>
-        <span class="kpi-unit">rpm</span>
+      <div class="kpi-card accent-blue">
+        <div class="kpi-label">Gearbox Output <span>DRIVESHAFT</span></div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="mOutput">1,071</span>
+          <span class="kpi-unit">rpm</span>
+        </div>
+        <div class="kpi-progress"><div class="kpi-progress-bar" id="barOutput" style="width: 28%; background: var(--accent-blue);"></div></div>
+        <div class="kpi-hint"><span>Ratio x FD</span><span id="kpiGearRatio">1.40:1</span></div>
       </div>
-      <div class="kpi-progress"><div class="kpi-progress-bar" id="barOutput" style="width: 28%; background: var(--accent-blue);"></div></div>
-      <div class="kpi-hint"><span>Ratio x FD</span><span id="kpiGearRatio">1.40:1</span></div>
-    </div>
 
-    <div class="kpi-card accent-teal">
-      <div class="kpi-label">Engine Torque <span>BRAKE LOAD</span></div>
-      <div class="kpi-value-row">
-        <span class="kpi-value" id="mTorque">31.2</span>
-        <span class="kpi-unit">N·m</span>
+      <div class="kpi-card accent-teal">
+        <div class="kpi-label">Engine Torque <span>BRAKE LOAD</span></div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="mTorque">31.2</span>
+          <span class="kpi-unit">N·m</span>
+        </div>
+        <div class="kpi-progress"><div class="kpi-progress-bar" id="barTorque" style="width: 85%;"></div></div>
+        <div class="kpi-hint"><span>Rated: 33.1</span><span>Peak: 35.5</span></div>
       </div>
-      <div class="kpi-progress"><div class="kpi-progress-bar" id="barTorque" style="width: 85%;"></div></div>
-      <div class="kpi-hint"><span>Rated: 33.1</span><span>Peak: 35.5</span></div>
-    </div>
 
-    <div class="kpi-card accent-blue">
-      <div class="kpi-label">Shaft Power <span>DELIVERED</span></div>
-      <div class="kpi-value-row">
-        <span class="kpi-value" id="mPower">4.9</span>
-        <span class="kpi-unit">kW</span>
+      <div class="kpi-card accent-blue">
+        <div class="kpi-label">Shaft Power <span>DELIVERED</span></div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="mPower">4.9</span>
+          <span class="kpi-unit">kW</span>
+        </div>
+        <div class="kpi-progress"><div class="kpi-progress-bar" id="barPower" style="width: 42%; background: var(--accent-blue);"></div></div>
+        <div class="kpi-hint"><span>Continuous</span><span>11.8 kW</span></div>
       </div>
-      <div class="kpi-progress"><div class="kpi-progress-bar" id="barPower" style="width: 42%; background: var(--accent-blue);"></div></div>
-      <div class="kpi-hint"><span>Continuous</span><span>11.8 kW</span></div>
-    </div>
 
-    <div class="kpi-card accent-emerald">
-      <div class="kpi-label">Coolant Temp <span>HEAD / JACKET</span></div>
-      <div class="kpi-value-row">
-        <span class="kpi-value" id="mCoolant">82</span>
-        <span class="kpi-unit">°C</span>
+      <div class="kpi-card accent-emerald">
+        <div class="kpi-label">Coolant Temp <span>HEAD / JACKET</span></div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="mCoolant">82</span>
+          <span class="kpi-unit">°C</span>
+        </div>
+        <div class="kpi-progress"><div class="kpi-progress-bar" id="barCoolant" style="width: 68%; background: var(--success);"></div></div>
+        <div class="kpi-hint"><span>Thermal Lag</span><span>Normal</span></div>
       </div>
-      <div class="kpi-progress"><div class="kpi-progress-bar" id="barCoolant" style="width: 68%; background: var(--success);"></div></div>
-      <div class="kpi-hint"><span>Thermal Lag</span><span>Normal</span></div>
-    </div>
 
-    <div class="kpi-card accent-amber">
-      <div class="kpi-label">Exhaust Temp <span>MANIFOLD</span></div>
-      <div class="kpi-value-row">
-        <span class="kpi-value" id="mExhaust">340</span>
-        <span class="kpi-unit">°C</span>
+      <div class="kpi-card accent-amber">
+        <div class="kpi-label">Exhaust Temp <span>MANIFOLD</span></div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="mExhaust">340</span>
+          <span class="kpi-unit">°C</span>
+        </div>
+        <div class="kpi-progress"><div class="kpi-progress-bar" id="barExhaust" style="width: 52%; background: var(--warning);"></div></div>
+        <div class="kpi-hint"><span>EGT Trend</span><span>Target: 340°C</span></div>
       </div>
-      <div class="kpi-progress"><div class="kpi-progress-bar" id="barExhaust" style="width: 52%; background: var(--warning);"></div></div>
-      <div class="kpi-hint"><span>EGT Trend</span><span>Target: 340°C</span></div>
-    </div>
 
-    <div class="kpi-card">
-      <div class="kpi-label">Vibration RMS <span>HEURISTIC</span></div>
-      <div class="kpi-value-row">
-        <span class="kpi-value" id="mVib">2.4</span>
-        <span class="kpi-unit">mm/s</span>
+      <div class="kpi-card">
+        <div class="kpi-label">Vibration RMS <span>HEURISTIC</span></div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="mVib">2.4</span>
+          <span class="kpi-unit">mm/s</span>
+        </div>
+        <div class="kpi-progress"><div class="kpi-progress-bar" id="barVib" style="width: 24%; background: #A78BFA;"></div></div>
+        <div class="kpi-hint"><span id="vibHint">Normal model range</span></div>
       </div>
-      <div class="kpi-progress"><div class="kpi-progress-bar" id="barVib" style="width: 24%; background: #A78BFA;"></div></div>
-      <div class="kpi-hint"><span id="vibHint">Normal model range</span></div>
-    </div>
 
-    <div class="kpi-card">
-      <div class="kpi-label">Fuel Heat Input <span>CHEMICAL</span></div>
-      <div class="kpi-value-row">
-        <span class="kpi-value" id="mHeat">14.2</span>
-        <span class="kpi-unit">kW</span>
+      <div class="kpi-card">
+        <div class="kpi-label">Fuel Heat Input <span>CHEMICAL</span></div>
+        <div class="kpi-value-row">
+          <span class="kpi-value" id="mHeat">14.2</span>
+          <span class="kpi-unit">kW</span>
+        </div>
+        <div class="kpi-progress"><div class="kpi-progress-bar" id="barHeat" style="width: 35%; background: #F472B6;"></div></div>
+        <div class="kpi-hint"><span>Diesel LHV</span><span>42.7 MJ/kg</span></div>
       </div>
-      <div class="kpi-progress"><div class="kpi-progress-bar" id="barHeat" style="width: 35%; background: #F472B6;"></div></div>
-      <div class="kpi-hint"><span>Diesel LHV</span><span>42.7 MJ/kg</span></div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Central Workspace Grid -->
-  <div class="workspace-grid">
-    <!-- Left: 3D Powertrain Cutaway Viewport -->
-    <section class="panel">
-      <div class="panel-header">
-        <h2>01 / <span>Interactive 3D Powertrain Digital Twin</span></h2>
-        <span class="panel-badge" id="modelMode">YANMAR 2GM20F · 5-SPEED MANUAL</span>
-      </div>
-      <div class="viewport-wrapper">
-        <div class="viewport-toolbar">
-          <div class="view-tag"><i></i> DIGITAL TWIN LIVE MESH</div>
-          <div class="view-controls">
-            <button class="btn-sm" id="viewDefault">Isometric</button>
-            <button class="btn-sm" id="viewGears">Gearset</button>
-            <button class="btn-sm" id="viewDiff">Diff</button>
-            <button class="btn-sm active" id="rotateBtn">Auto Rotate</button>
-            <button class="btn-sm" id="resetViewBtn">Reset View</button>
+    <!-- Central Workspace Grid -->
+    <div class="workspace-grid">
+      <!-- Left: 3D Powertrain Cutaway Viewport -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2>01 / <span>Interactive 3D Powertrain Digital Twin</span></h2>
+          <span class="panel-badge" id="modelMode">YANMAR 2GM20F · 5-SPEED MANUAL</span>
+        </div>
+        <div class="viewport-wrapper">
+          <div class="viewport-toolbar">
+            <div class="view-tag"><i></i> DIGITAL TWIN LIVE MESH</div>
+            <div class="view-controls">
+              <button class="btn-sm" id="viewDefault">Isometric</button>
+              <button class="btn-sm" id="viewGears">Gearset</button>
+              <button class="btn-sm" id="viewDiff">Diff</button>
+              <button class="btn-sm active" id="rotateBtn">Auto Rotate</button>
+              <button class="btn-sm" id="resetViewBtn">Reset View</button>
+            </div>
+          </div>
+          <div id="threeViewport" aria-label="Interactive 3D Cutaway Manual Transmission Model">
+            <div class="loading-overlay" id="loading3d">
+              <div class="spinner"></div>
+              <strong>Initializing 3D Powertrain Mesh</strong>
+              <span>Loading Three.js graphics engine…</span>
+            </div>
+          </div>
+          <div class="viewport-footer">
+            <span>[Drag] Orbit · [Right-click Drag] Pan · [Scroll] Zoom</span>
+            <span id="selectedGearLabel">Selected: 3rd gear (1.40:1)</span>
           </div>
         </div>
-        <div id="threeViewport" aria-label="Interactive 3D Cutaway Manual Transmission Model">
-          <div class="loading-overlay" id="loading3d">
-            <div class="spinner"></div>
-            <strong>Initializing 3D Powertrain Mesh</strong>
-            <span>Loading Three.js graphics engine…</span>
+      </section>
+
+      <!-- Right: Actuators & Simulation Controls -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2>02 / <span>Powertrain Control Unit</span></h2>
+          <span class="panel-badge">DRIVER ACTUATORS</span>
+        </div>
+        <div class="panel-body controls-container">
+          <!-- Gear Selection (Tactile Gate) -->
+          <div class="gear-selector-block">
+            <div class="control-group-title">Transmission Gear Gate</div>
+            <div class="gear-grid" id="gearShifter">
+              <button type="button" class="gear-btn" data-gear="-1">R<small>3.30:1</small></button>
+              <button type="button" class="gear-btn" data-gear="0">N<small>0.00:1</small></button>
+              <button type="button" class="gear-btn" data-gear="1">1<small>3.60:1</small></button>
+              <button type="button" class="gear-btn" data-gear="2">2<small>2.10:1</small></button>
+              <button type="button" class="gear-btn active" data-gear="3">3<small>1.40:1</small></button>
+              <button type="button" class="gear-btn" data-gear="4">4<small>1.00:1</small></button>
+              <button type="button" class="gear-btn" data-gear="5">5<small>0.80:1</small></button>
+            </div>
+            <select id="gear">
+              <option value="-1">Reverse · 3.30:1</option>
+              <option value="0">Neutral (N)</option>
+              <option value="1">1st gear · 3.60:1</option>
+              <option value="2">2nd gear · 2.10:1</option>
+              <option value="3" selected>3rd gear · 1.40:1</option>
+              <option value="4">4th gear · 1.00:1</option>
+              <option value="5">5th gear · 0.80:1</option>
+            </select>
+          </div>
+
+          <!-- Pedals Switchboard -->
+          <div>
+            <div class="control-group-title">Pedal & Ignition Actuators</div>
+            <div class="pedal-grid">
+              <div class="pedal-card">
+                <span class="pedal-title">CLUTCH</span>
+                <span class="pedal-status" id="clutchText">Engaged</span>
+                <button class="pedal-btn" id="clutchBtn">Depress</button>
+              </div>
+              <div class="pedal-card">
+                <span class="pedal-title">SERVICE BRAKE</span>
+                <span class="pedal-status" id="brakeText">Released</span>
+                <button class="pedal-btn" id="brakeBtn">Apply</button>
+              </div>
+              <div class="pedal-card">
+                <span class="pedal-title">IGNITION</span>
+                <span class="pedal-status" id="ignitionText">Running</span>
+                <button class="pedal-btn active" id="ignitionBtn">Stop</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Sliders -->
+          <div class="slider-group">
+            <div class="control-group-title">Engine & Chassis Dynamics</div>
+            
+            <div class="slider-card">
+              <div class="slider-header">
+                <span class="slider-title">Throttle Demand</span>
+                <span class="slider-readout" id="throttleVal">35%</span>
+              </div>
+              <input id="throttle" type="range" min="0" max="100" value="35">
+            </div>
+
+            <div class="slider-card">
+              <div class="slider-header">
+                <span class="slider-title">Applied Dyno Load</span>
+                <span class="slider-readout" id="loadVal">50%</span>
+              </div>
+              <input id="load" type="range" min="0" max="100" value="50">
+            </div>
+
+            <div class="slider-card">
+              <div class="slider-header">
+                <span class="slider-title">Ambient Temperature</span>
+                <span class="slider-readout" id="ambientVal">25 °C</span>
+              </div>
+              <input id="ambient" type="range" min="0" max="45" value="25">
+            </div>
+
+            <div class="slider-card">
+              <div class="slider-header">
+                <span class="slider-title">Mechanical Wear / Misalignment</span>
+                <span class="slider-readout" id="wearVal">10%</span>
+              </div>
+              <input id="wear" type="range" min="0" max="100" value="10">
+            </div>
+
+            <div class="slider-card">
+              <div class="slider-header">
+                <span class="slider-title">Final Drive Differential Ratio</span>
+                <span class="slider-readout" id="ratioVal">3.90:1</span>
+              </div>
+              <input id="ratio" type="range" min="2" max="5" step="0.1" value="3.9">
+            </div>
+          </div>
+
+          <!-- Presets Bar -->
+          <div>
+            <div class="control-group-title">Operational Presets</div>
+            <div class="presets-row">
+              <button class="preset-chip" id="presetIdle">Idle Warmup</button>
+              <button class="preset-chip" id="presetCruise">City Cruise</button>
+              <button class="preset-chip" id="presetDyno">High Load Dyno</button>
+              <button class="preset-chip" id="presetSevere">Severe Wear</button>
+            </div>
           </div>
         </div>
-        <div class="viewport-footer">
-          <span>[Drag] Orbit · [Right-click Drag] Pan · [Scroll] Zoom</span>
-          <span id="selectedGearLabel">Selected: 3rd gear (1.40:1)</span>
+      </section>
+    </div>
+
+    <!-- Telemetry Strip Charts Section -->
+    <section class="charts-grid">
+      <div class="chart-panel">
+        <div class="panel-header">
+          <h2>03 / <span>Kinematic Velocity History</span></h2>
+          <span class="panel-badge">REAL-TIME TELEMETRY</span>
+        </div>
+        <div class="chart-canvas-wrap">
+          <div class="chart-legend">
+            <div class="legend-item"><span class="legend-dot" style="background: var(--accent-teal);"></span> Engine Speed (RPM)</div>
+            <div class="legend-item"><span class="legend-dot" style="background: var(--accent-blue);"></span> Gearbox Output (RPM)</div>
+          </div>
+          <canvas class="telemetry-chart" id="rpmChart" width="800" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-panel">
+        <div class="panel-header">
+          <h2>04 / <span>Thermodynamic & Vibration Trends</span></h2>
+          <span class="panel-badge">MULTI-CHANNEL LOG</span>
+        </div>
+        <div class="chart-canvas-wrap">
+          <div class="chart-legend">
+            <div class="legend-item"><span class="legend-dot" style="background: var(--warning);"></span> Exhaust (°C)</div>
+            <div class="legend-item"><span class="legend-dot" style="background: var(--success);"></span> Coolant (°C)</div>
+            <div class="legend-item"><span class="legend-dot" style="background: #A78BFA;"></span> Vibration (RMS x30)</div>
+          </div>
+          <canvas class="telemetry-chart" id="thermalChart" width="800" height="200"></canvas>
         </div>
       </div>
     </section>
 
-    <!-- Right: Actuators & Simulation Controls -->
-    <section class="panel">
-      <div class="panel-header">
-        <h2>02 / <span>Powertrain Control Unit</span></h2>
-        <span class="panel-badge">DRIVER ACTUATORS</span>
-      </div>
-      <div class="panel-body controls-container">
-        <!-- Gear Selection (Tactile Gate) -->
-        <div class="gear-selector-block">
-          <div class="control-group-title">Transmission Gear Gate</div>
-          <div class="gear-grid" id="gearShifter">
-            <button type="button" class="gear-btn" data-gear="-1">R<small>3.30:1</small></button>
-            <button type="button" class="gear-btn" data-gear="0">N<small>0.00:1</small></button>
-            <button type="button" class="gear-btn" data-gear="1">1<small>3.60:1</small></button>
-            <button type="button" class="gear-btn" data-gear="2">2<small>2.10:1</small></button>
-            <button type="button" class="gear-btn active" data-gear="3">3<small>1.40:1</small></button>
-            <button type="button" class="gear-btn" data-gear="4">4<small>1.00:1</small></button>
-            <button type="button" class="gear-btn" data-gear="5">5<small>0.80:1</small></button>
-          </div>
-          <!-- Synchronized native select for accessibility & automation -->
-          <select id="gear">
-            <option value="-1">Reverse · 3.30:1</option>
-            <option value="0">Neutral (N)</option>
-            <option value="1">1st gear · 3.60:1</option>
-            <option value="2">2nd gear · 2.10:1</option>
-            <option value="3" selected>3rd gear · 1.40:1</option>
-            <option value="4">4th gear · 1.00:1</option>
-            <option value="5">5th gear · 0.80:1</option>
-          </select>
+    <!-- Engineering Tables & Benchmark Data -->
+    <section class="tables-grid">
+      <div class="table-panel">
+        <div class="panel-header">
+          <h2>05 / <span>Calculated Powertrain Metrics</span></h2>
+          <span class="panel-badge">PHYSICAL & KINEMATIC FORMULATION</span>
         </div>
+        <table class="eng-table">
+          <thead>
+            <tr>
+              <th>Diagnostic Parameter</th>
+              <th>Calculated Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Active Gear Ratio</td><td id="tGear">1.40 : 1</td></tr>
+            <tr><td>Overall Drive Ratio (Gear x Final Drive)</td><td id="tOverall">5.46 : 1</td></tr>
+            <tr><td>Estimated Engine Torque</td><td id="tTorque">31.2 N·m</td></tr>
+            <tr><td>Estimated Shaft Brake Power</td><td id="tPower">4.9 kW</td></tr>
+            <tr><td>Volumetric Fuel Flow Rate</td><td id="tFuel">1.4 L/h</td></tr>
+            <tr><td>Brake Specific Fuel Consumption (BSFC)</td><td id="tSfc">285 g/kWh</td></tr>
+            <tr><td>Fuel Chemical Heat Release Rate</td><td id="tHeat">14.2 kW</td></tr>
+            <tr><td>Estimated Heat Rejection to Coolant</td><td id="tCoolHeat">2.8 kW</td></tr>
+            <tr><td>Mechanical Gear Transmission Efficiency</td><td id="tEff">94.2%</td></tr>
+            <tr><td>Shaft Angular Velocity Delta (Engine vs Out)</td><td id="tDiff">429 rpm</td></tr>
+            <tr><td>Clutch Slip Angular Velocity</td><td id="tSlip">0 rpm</td></tr>
+            <tr><td>Estimated Wheel / Output Torque</td><td id="tOutTorque">160.5 N·m</td></tr>
+            <tr><td>Powertrain Operating Regime</td><td id="tState">Loaded · clutch engaged</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-        <!-- Pedals Switchboard -->
-        <div>
-          <div class="control-group-title">Pedal & Ignition Actuators</div>
-          <div class="pedal-grid">
-            <div class="pedal-card">
-              <span class="pedal-title">CLUTCH</span>
-              <span class="pedal-status" id="clutchText">Engaged</span>
-              <button class="pedal-btn" id="clutchBtn">Depress</button>
-            </div>
-            <div class="pedal-card">
-              <span class="pedal-title">SERVICE BRAKE</span>
-              <span class="pedal-status" id="brakeText">Released</span>
-              <button class="pedal-btn" id="brakeBtn">Apply</button>
-            </div>
-            <div class="pedal-card">
-              <span class="pedal-title">IGNITION</span>
-              <span class="pedal-status" id="ignitionText">Running</span>
-              <button class="pedal-btn active" id="ignitionBtn">Stop</button>
-            </div>
-          </div>
+      <div class="table-panel">
+        <div class="panel-header">
+          <h2>06 / <span>Benchmark Reference & Provenance</span></h2>
+          <span class="panel-badge">MANUFACTURER vs MODEL</span>
         </div>
-
-        <!-- Dynamic Sliders -->
-        <div class="slider-group">
-          <div class="control-group-title">Engine & Chassis Dynamics</div>
-          
-          <div class="slider-card">
-            <div class="slider-header">
-              <span class="slider-title">Throttle Demand</span>
-              <span class="slider-readout" id="throttleVal">35%</span>
-            </div>
-            <input id="throttle" type="range" min="0" max="100" value="35">
-          </div>
-
-          <div class="slider-card">
-            <div class="slider-header">
-              <span class="slider-title">Applied Dyno Load</span>
-              <span class="slider-readout" id="loadVal">50%</span>
-            </div>
-            <input id="load" type="range" min="0" max="100" value="50">
-          </div>
-
-          <div class="slider-card">
-            <div class="slider-header">
-              <span class="slider-title">Ambient Temperature</span>
-              <span class="slider-readout" id="ambientVal">25 °C</span>
-            </div>
-            <input id="ambient" type="range" min="0" max="45" value="25">
-          </div>
-
-          <div class="slider-card">
-            <div class="slider-header">
-              <span class="slider-title">Mechanical Wear / Misalignment</span>
-              <span class="slider-readout" id="wearVal">10%</span>
-            </div>
-            <input id="wear" type="range" min="0" max="100" value="10">
-          </div>
-
-          <div class="slider-card">
-            <div class="slider-header">
-              <span class="slider-title">Final Drive Differential Ratio</span>
-              <span class="slider-readout" id="ratioVal">3.90:1</span>
-            </div>
-            <input id="ratio" type="range" min="2" max="5" step="0.1" value="3.9">
-          </div>
-        </div>
-
-        <!-- Presets Bar -->
-        <div>
-          <div class="control-group-title">Operational Presets</div>
-          <div class="presets-row">
-            <button class="preset-chip" id="presetIdle">Idle Warmup</button>
-            <button class="preset-chip" id="presetCruise">City Cruise</button>
-            <button class="preset-chip" id="presetDyno">High Load Dyno</button>
-            <button class="preset-chip" id="presetSevere">Severe Wear</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Telemetry Strip Charts Section -->
-  <section class="charts-grid">
-    <div class="chart-panel">
-      <div class="panel-header">
-        <h2>03 / <span>Kinematic Velocity History</span></h2>
-        <span class="panel-badge">REAL-TIME TELEMETRY</span>
-      </div>
-      <div class="chart-canvas-wrap">
-        <div class="chart-legend">
-          <div class="legend-item"><span class="legend-dot" style="background: var(--accent-teal);"></span> Engine Speed (RPM)</div>
-          <div class="legend-item"><span class="legend-dot" style="background: var(--accent-blue);"></span> Gearbox Output (RPM)</div>
-        </div>
-        <canvas class="telemetry-chart" id="rpmChart" width="800" height="200"></canvas>
-      </div>
-    </div>
-
-    <div class="chart-panel">
-      <div class="panel-header">
-        <h2>04 / <span>Thermodynamic & Vibration Trends</span></h2>
-        <span class="panel-badge">MULTI-CHANNEL LOG</span>
-      </div>
-      <div class="chart-canvas-wrap">
-        <div class="chart-legend">
-          <div class="legend-item"><span class="legend-dot" style="background: var(--warning);"></span> Exhaust (°C)</div>
-          <div class="legend-item"><span class="legend-dot" style="background: var(--success);"></span> Coolant (°C)</div>
-          <div class="legend-item"><span class="legend-dot" style="background: #A78BFA;"></span> Vibration (RMS x30)</div>
-        </div>
-        <canvas class="telemetry-chart" id="thermalChart" width="800" height="200"></canvas>
-      </div>
-    </div>
-  </section>
-
-  <!-- Engineering Tables & Benchmark Data -->
-  <section class="tables-grid">
-    <div class="table-panel">
-      <div class="panel-header">
-        <h2>05 / <span>Calculated Powertrain Metrics</span></h2>
-        <span class="panel-badge">PHYSICAL & KINEMATIC FORMULATION</span>
-      </div>
-      <table class="eng-table">
-        <thead>
-          <tr>
-            <th>Diagnostic Parameter</th>
-            <th>Calculated Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Active Gear Ratio</td><td id="tGear">1.40 : 1</td></tr>
-          <tr><td>Overall Drive Ratio (Gear x Final Drive)</td><td id="tOverall">5.46 : 1</td></tr>
-          <tr><td>Estimated Engine Torque</td><td id="tTorque">31.2 N·m</td></tr>
-          <tr><td>Estimated Shaft Brake Power</td><td id="tPower">4.9 kW</td></tr>
-          <tr><td>Volumetric Fuel Flow Rate</td><td id="tFuel">1.4 L/h</td></tr>
-          <tr><td>Brake Specific Fuel Consumption (BSFC)</td><td id="tSfc">285 g/kWh</td></tr>
-          <tr><td>Fuel Chemical Heat Release Rate</td><td id="tHeat">14.2 kW</td></tr>
-          <tr><td>Estimated Heat Rejection to Coolant</td><td id="tCoolHeat">2.8 kW</td></tr>
-          <tr><td>Mechanical Gear Transmission Efficiency</td><td id="tEff">94.2%</td></tr>
-          <tr><td>Shaft Angular Velocity Delta (Engine vs Out)</td><td id="tDiff">429 rpm</td></tr>
-          <tr><td>Clutch Slip Angular Velocity</td><td id="tSlip">0 rpm</td></tr>
-          <tr><td>Estimated Wheel / Output Torque</td><td id="tOutTorque">160.5 N·m</td></tr>
-          <tr><td>Powertrain Operating Regime</td><td id="tState">Loaded · clutch engaged</td></tr>
+        <table class="eng-table">
+          <thead>
+            <tr>
+              <th>Yanmar 2GM20F Specification</th>
+              <th>Factory Rating</th>
+            </tr>
+          </thead>
         </tbody>
-      </table>
-    </div>
-
-    <div class="table-panel">
-      <div class="panel-header">
-        <h2>06 / <span>Benchmark Reference & Provenance</span></h2>
-        <span class="panel-badge">MANUFACTURER vs MODEL</span>
-      </div>
-      <table class="eng-table">
-        <thead>
-          <tr>
-            <th>Yanmar 2GM20F Specification</th>
-            <th>Factory Rating</th>
-          </tr>
-        </thead>
         <tbody>
           <tr><td>Engine Configuration</td><td>2-Cylinder 4-Stroke Diesel</td></tr>
           <tr><td>Total Displacement</td><td>0.636 Litres</td></tr>
@@ -1152,22 +1665,367 @@ footer {
           <tr><td>Transmission Architecture</td><td>Illustrative 5-Speed Transaxle</td></tr>
           <tr><td>Thermal & Vibration Model</td><td>First-Order Transient Heuristic</td></tr>
         </tbody>
-      </table>
-      <div class="notes-card">
-        <strong>Technical Provenance:</strong> Engine dimensions and rated power are anchored to the official 
-        <a href="https://www.yanmar.no/theme/yanmarportal/uploadedFiles/Marine/productDownloads/Leisure-Previous-Models/Operation-Manuals/GM-OP-Manual-Multi.pdf" target="_blank" rel="noopener">Yanmar GM Operation Manual</a>. 
-        Intermediate torque curves, thermal response lag, and vibration amplitudes are modeled engineering estimates for dynamic demonstration.
+        </table>
+        <div class="notes-card">
+          <strong>Technical Provenance:</strong> Engine dimensions and rated power are anchored to the official 
+          <a href="https://www.yanmar.no/theme/yanmarportal/uploadedFiles/Marine/productDownloads/Leisure-Previous-Models/Operation-Manuals/GM-OP-Manual-Multi.pdf" target="_blank" rel="noopener">Yanmar GM Operation Manual</a>. 
+          Intermediate torque curves, thermal response lag, and vibration amplitudes are modeled engineering estimates for dynamic demonstration.
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==========================================
+       SECTION B: TEST CASES & DATA BENCH
+       ========================================== -->
+  <div class="view-section hidden" id="sectionTest">
+    <!-- Top Action & Status Bar -->
+    <div class="tc-top-bar">
+      <div class="tc-stats-chips">
+        <span class="tc-stat-chip"><strong id="statTotalTests">10</strong> Test Cases</span>
+        <span class="tc-stat-chip"><strong id="statCompletedTests" style="color: var(--success);">0</strong> Completed</span>
+        <span class="tc-stat-chip"><strong id="statTotalSamples">0</strong> Data Points</span>
+        <span class="tc-stat-chip"><strong id="statBatchStatus">Ready</strong></span>
+      </div>
+
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="btn btn-primary" id="btnRunAll">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Run All Tests
+        </button>
+        <button class="btn" id="btnNewTest">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          New Test Case
+        </button>
+        <button class="btn btn-danger" id="btnClearDataset">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          Clear Dataset
+        </button>
       </div>
     </div>
-  </section>
+
+    <!-- Main Workbench Grid: Left = Test Suite List, Right = Data Explorer -->
+    <div class="tc-workbench-grid">
+      <!-- Left Column: Test Case Suite -->
+      <div class="panel tc-list-panel">
+        <div class="panel-header">
+          <h2><span>Test Case Suite</span></h2>
+          <span class="panel-badge">TC-001 to TC-010</span>
+        </div>
+        <div class="tc-list-tools">
+          <input type="text" id="tcSearch" class="tc-search-input" placeholder="Filter test cases by ID or title…">
+          <button class="btn-sm" id="btnSelectAllTests" title="Toggle selection for all tests">Select All</button>
+        </div>
+        <div class="tc-scrollable-list" id="testCaseList">
+          <!-- Dynamically populated test cards -->
+        </div>
+      </div>
+
+      <!-- Right Column: Data Studio & Analytics -->
+      <div class="panel tc-data-panel">
+        <!-- Sub-Tabs Bar -->
+        <div class="tc-sub-nav">
+          <button class="tc-sub-tab active" data-sub="table">Time-Series Table</button>
+          <button class="tc-sub-tab" data-sub="compare">Multi-Test Overlay</button>
+          <button class="tc-sub-tab" data-sub="stats">Statistics & Provenance</button>
+          <button class="tc-sub-tab" data-sub="export">Export Center</button>
+        </div>
+
+        <!-- Sub-Tab A: Time-Series Explorer -->
+        <div class="tc-sub-content" id="subContentTable">
+          <div class="table-toolbar">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">ACTIVE TEST:</span>
+              <select id="tcActiveSelect" class="form-input" style="padding: 4px 8px; min-width: 240px;"></select>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span style="font-size: 11px; color: var(--text-muted);">Rows per page:</span>
+              <select id="tcPageSize" class="form-input" style="padding: 4px 8px;">
+                <option value="15">15</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="dataset-table-wrap">
+            <table class="dataset-table">
+              <thead>
+                <tr>
+                  <th>Time (s)</th>
+                  <th>Operating State</th>
+                  <th>Engine RPM</th>
+                  <th>Output RPM</th>
+                  <th>Torque (N·m)</th>
+                  <th>Power (kW)</th>
+                  <th>Fuel (L/h)</th>
+                  <th>Cumul Fuel (L)</th>
+                  <th>Gear</th>
+                  <th>Ratio</th>
+                  <th>Eff (%)</th>
+                  <th>Coolant (°C)</th>
+                  <th>Exhaust (°C)</th>
+                  <th>Vib (mm/s)</th>
+                  <th>Slip (RPM)</th>
+                  <th>Loss (kW)</th>
+                </tr>
+              </thead>
+              <tbody id="tcTableBody">
+                <tr><td colspan="16" style="text-align: center; padding: 40px; color: var(--text-muted);">No test results recorded yet. Click "Run All Tests" or run an individual test case.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-pagination">
+            <span id="tcPaginationInfo">Showing 0–0 of 0 samples</span>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn-sm" id="tcPagePrev">‹ Previous</button>
+              <button class="btn-sm" id="tcPageNext">Next ›</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-Tab B: Multi-Test Overlay Chart -->
+        <div class="tc-sub-content hidden" id="subContentCompare">
+          <div class="table-toolbar">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">COMPARE METRIC:</span>
+              <select id="compareMetricSelect" class="form-input" style="padding: 4px 8px;">
+                <option value="rpm">Engine Speed (RPM)</option>
+                <option value="out">Gearbox Output Speed (RPM)</option>
+                <option value="torque">Engine Torque (N·m)</option>
+                <option value="power">Shaft Power (kW)</option>
+                <option value="coolant">Coolant Temperature (°C)</option>
+                <option value="exhaust">Exhaust Temperature (°C)</option>
+                <option value="fuel">Fuel Rate (L/h)</option>
+                <option value="vib">Vibration RMS (mm/s)</option>
+                <option value="cumFuel">Cumulative Fuel Consumed (L)</option>
+              </select>
+            </div>
+            <span style="font-size: 11px; color: var(--text-muted);" id="compareCountLabel">Select completed tests to overlay</span>
+          </div>
+
+          <div class="comparison-chart-wrap">
+            <canvas id="compareChart" width="800" height="320"></canvas>
+          </div>
+          <div id="compareLegend" style="display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px;"></div>
+        </div>
+
+        <!-- Sub-Tab C: Statistics & Scientific Provenance -->
+        <div class="tc-sub-content hidden" id="subContentStats">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="control-group-title" style="margin: 0;">Statistical Distribution for <span id="statsTestTitle" style="color: var(--accent-teal); margin-left: 5px;">TC-001</span></div>
+            <span class="panel-badge" id="statsSampleCount">0 Samples</span>
+          </div>
+
+          <div class="stats-matrix-grid" id="statsCardsContainer">
+            <!-- Dynamically populated summary statistical boxes -->
+          </div>
+
+          <div class="control-group-title" style="margin-top: 14px;">Scientific Data Provenance & Classification Matrix</div>
+          <table class="eng-table" style="background: var(--bg-secondary); border-radius: 8px;">
+            <thead>
+              <tr>
+                <th>Telemetry Parameter</th>
+                <th>Classification</th>
+                <th>Scientific Formulation / Governing Law</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Engine RPM</td><td><span class="panel-badge" style="color: var(--accent-blue);">Direct Calculated</span></td><td>Transient exponential lag filter: \( \omega(t + \Delta t) = \omega + (\omega_{target} - \omega)(1 - e^{-\Delta t / 1.2}) \)</td></tr>
+              <tr><td>Shaft Brake Power</td><td><span class="panel-badge" style="color: var(--accent-blue);">Direct Calculated</span></td><td>First-law rotational mechanical relation: \( P = \frac{\tau \times N}{9549} \) (kW)</td></tr>
+              <tr><td>Gear Kinematic Speeds</td><td><span class="panel-badge" style="color: var(--accent-blue);">Direct Calculated</span></td><td>Rigid kinematic speed matching: \( \omega_{out} = \frac{\omega_{in}}{R_{gear} \times R_{fd}} \)</td></tr>
+              <tr><td>Cumulative Fuel Consumed</td><td><span class="panel-badge" style="color: var(--accent-blue);">Direct Calculated</span></td><td>Trapezoidal Euler integral: \( V_f = \int \dot{V}_f \, dt = \sum \frac{\dot{V}_{f}}{3600} \Delta t \)</td></tr>
+              <tr><td>Engine Torque Curve</td><td><span class="panel-badge" style="color: var(--warning);">Estimated Model</span></td><td>Piecewise interpolation bounded by Yanmar 2GM20F 11.8 kW @ 3400 & 13.4 kW @ 3600 rpm</td></tr>
+              <tr><td>BSFC Fuel Consumption</td><td><span class="panel-badge" style="color: var(--warning);">Estimated Model</span></td><td>Heuristic quadratic BSFC map (\( 245 + 70(1 - load)^2 + 25(1 - throttle)^2 \) g/kWh)</td></tr>
+              <tr><td>Coolant & Exhaust Temps</td><td><span class="panel-badge" style="color: var(--warning);">Estimated Model</span></td><td>Lumped first-order dynamic thermal rejection (\( \tau_{coolant} = 18s \), \( \tau_{exhaust} = 5s \))</td></tr>
+              <tr><td>Vibration RMS Velocity</td><td><span class="panel-badge" style="color: var(--warning);">Estimated Model</span></td><td>Empirical trend heuristic based on RPM, torque reaction, wear factor, and clutch slip</td></tr>
+              <tr><td>Cylinder Pressure \( P(\theta) \)</td><td><span class="panel-badge" style="color: var(--critical);">Not Modeled</span></td><td>Requires piezo-electric in-cylinder combustion pressure transducer and crank optical encoder</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Sub-Tab D: Export Center -->
+        <div class="tc-sub-content hidden" id="subContentExport">
+          <div class="control-group-title" style="margin: 0;">Multi-Format Dataset Exporters</div>
+          <div class="export-grid">
+            <div class="export-card">
+              <div>
+                <div class="export-card-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                </div>
+                <h3 style="margin-top: 10px;">CSV Telemetry Log</h3>
+                <p>Full time-series records for the active test case with complete metadata headers, timestamps, and physical engineering units.</p>
+              </div>
+              <button class="btn btn-primary" id="btnExportActiveCsv">Download Active CSV</button>
+            </div>
+
+            <div class="export-card">
+              <div>
+                <div class="export-card-icon" style="color: var(--accent-blue);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                </div>
+                <h3 style="margin-top: 10px;">Consolidated Batch CSV</h3>
+                <p>One unified dataset combining all completed test cases with test ID tags for batch data processing in Pandas, R, or MATLAB.</p>
+              </div>
+              <button class="btn" id="btnExportBatchCsv">Download Batch CSV</button>
+            </div>
+
+            <div class="export-card">
+              <div>
+                <div class="export-card-icon" style="color: var(--warning);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                </div>
+                <h3 style="margin-top: 10px;">JSON Engineering Dataset</h3>
+                <p>Hierarchical dataset containing test metadata, engine benchmark specifications, input vectors, summary statistics, and sample arrays.</p>
+              </div>
+              <button class="btn" id="btnExportJson">Download Full JSON</button>
+            </div>
+
+            <div class="export-card">
+              <div>
+                <div class="export-card-icon" style="color: var(--success);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                </div>
+                <h3 style="margin-top: 10px;">Excel Workbook (.xlsx)</h3>
+                <p>Professional multi-tab spreadsheet including Executive Summary, Test Configuration Matrix, and dedicated sheets per test case.</p>
+              </div>
+              <button class="btn" id="btnExportExcel">Download Excel Workbook</button>
+            </div>
+          </div>
+
+          <div class="notes-card" style="border-radius: 8px; margin-top: 10px;">
+            <strong>Integrity Notice:</strong> All exported datasets reflect raw time-step calculations strictly derived from the configured physical model. Output records contain zero simulated random noise or synthetic placeholder rows.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 
+<!-- Create / Edit Test Case Modal -->
+<div class="modal-overlay hidden" id="modalEditTest">
+  <div class="modal-window">
+    <div class="modal-header">
+      <h3 id="modalTitle">Configure Test Case</h3>
+      <button class="btn-icon" id="modalCloseBtn" style="color: var(--text-muted);">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editTestId">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Test ID</label>
+          <input type="text" id="editIdDisplay" class="form-input" disabled>
+        </div>
+        <div class="form-field">
+          <label>Test Name</label>
+          <input type="text" id="editName" class="form-input" placeholder="e.g. Full Throttle Acceleration">
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Description / Objective</label>
+        <input type="text" id="editDesc" class="form-input" placeholder="e.g. Measure torque output and RPM rise under heavy load">
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>Throttle Demand (%)</label>
+          <input type="number" id="editThrottle" class="form-input" min="0" max="100" value="50">
+        </div>
+        <div class="form-field">
+          <label>Selected Gear</label>
+          <select id="editGear" class="form-input">
+            <option value="-1">Reverse (3.30:1)</option>
+            <option value="0">Neutral (0.00:1)</option>
+            <option value="1">1st Gear (3.60:1)</option>
+            <option value="2">2nd Gear (2.10:1)</option>
+            <option value="3" selected>3rd Gear (1.40:1)</option>
+            <option value="4">4th Gear (1.00:1)</option>
+            <option value="5">5th Gear (0.80:1)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>Dyno Applied Load (%)</label>
+          <input type="number" id="editLoad" class="form-input" min="0" max="100" value="50">
+        </div>
+        <div class="form-field">
+          <label>Final Drive Ratio</label>
+          <input type="number" id="editRatio" class="form-input" min="2" max="5" step="0.1" value="3.9">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>Mechanical Wear (%)</label>
+          <input type="number" id="editWear" class="form-input" min="0" max="100" value="10">
+        </div>
+        <div class="form-field">
+          <label>Ambient Temperature (°C)</label>
+          <input type="number" id="editAmbient" class="form-input" min="0" max="50" value="25">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>Simulation Duration (seconds)</label>
+          <input type="number" id="editDuration" class="form-input" min="2" max="60" value="10">
+        </div>
+        <div class="form-field">
+          <label>Time Step Δt (seconds)</label>
+          <input type="number" id="editDt" class="form-input" min="0.02" max="0.5" step="0.02" value="0.1">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>Clutch State</label>
+          <select id="editClutch" class="form-input">
+            <option value="engaged">Engaged (Coupled)</option>
+            <option value="disengaged">Disengaged (Slipping / Decoupled)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Service Brake</label>
+          <select id="editBrake" class="form-input">
+            <option value="released">Released</option>
+            <option value="applied">Applied (Braking Load)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label>Initial Engine RPM</label>
+          <input type="number" id="editInitRpm" class="form-input" min="0" max="3600" value="1500">
+        </div>
+        <div class="form-field">
+          <label>Ignition State</label>
+          <select id="editIgnition" class="form-input">
+            <option value="running">Running</option>
+            <option value="stopped">Stopped</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="modalCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="modalSaveBtn">Save Test Case</button>
+    </div>
+  </div>
+</div>
+
 <footer>
-  <div>Transmission Dynamics Studio · High-Fidelity Automotive Engineering Demonstrator</div>
+  <div>Transmission Dynamics Studio · High-Fidelity Automotive Engineering Demonstrator & Test Bench</div>
   <div>Platform: HTML5 WebGL / Three.js r160 · Client-side Execution · Zero Network Latency</div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const gearRatios = { 0: 0, 1: 3.6, 2: 2.1, 3: 1.4, 4: 1.0, 5: 0.8, '-1': 3.3 };
@@ -1179,6 +2037,9 @@ function fmt(n, d = 0) {
 }
 function val(id) { return +$(id).value; }
 
+// ==========================================
+// CORE POWERTRAIN SIMULATION MODEL
+// ==========================================
 function compute(dt = 0) {
   const g = +$('gear').value;
   const load = val('load') / 100;
@@ -1242,7 +2103,6 @@ function put(id, txt) {
 
 function update(dt = 0) {
   const x = compute(dt);
-  const gearName = x.g === 0 ? 'Neutral' : x.g === -1 ? 'Reverse' : `${x.g}${['st','nd','rd'][x.g-1]||'th'} gear`;
 
   // Update slider readouts
   put('loadVal', `${Math.round(x.load * 100)}%`);
@@ -1318,7 +2178,7 @@ function update(dt = 0) {
     threeModel.sync({ gear: x.g, rpm: x.rpm, out: x.output, clutch, brake, ignition, wear: x.wear });
   }
 
-  // Record historical buffer & render charts
+  // Record historical buffer & render live charts
   if (elapsed % 0.5 < dt) {
     hist.push({
       t: elapsed,
@@ -1340,7 +2200,7 @@ function update(dt = 0) {
 }
 
 // Crisp High-DPI Chart Drawing
-function drawTelemetry(canvasId, series, maxY, unit = '') {
+function drawTelemetry(canvasId, series, maxY) {
   const canvas = $(canvasId);
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -1399,7 +2259,6 @@ function drawTelemetry(canvasId, series, maxY, unit = '') {
       return { x, y };
     });
 
-    // Optional subtle gradient area
     if (s.fill) {
       const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
       grad.addColorStop(0, s.fill);
@@ -1413,7 +2272,6 @@ function drawTelemetry(canvasId, series, maxY, unit = '') {
       ctx.fill();
     }
 
-    // Stroke line
     ctx.beginPath();
     ctx.strokeStyle = s.color;
     ctx.lineWidth = 2.0;
@@ -1499,7 +2357,7 @@ $('presetSevere').onclick = () => {
   update(0.05);
 };
 
-// CSV Telemetry Export
+// CSV Telemetry Export (Live Cockpit)
 $('csvBtn').onclick = () => {
   const headers = ['time_s','engine_rpm','output_rpm','vibration_rms','coolant_c','exhaust_c','fuel_heat_kw','fuel_l_h','gear','load_pct','throttle_pct','clutch_slip_rpm'];
   const rows = [headers, ...hist.map(h => [
@@ -1510,7 +2368,7 @@ $('csvBtn').onclick = () => {
   const blob = new Blob([rows.map(r => r.join(',')).join('\n')], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `transmission_telemetry_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '_')}.csv`;
+  a.download = `live_cockpit_log_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '_')}.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
 };
@@ -1828,7 +2686,940 @@ function initThreeModel() {
   threeModel = { sync };
 }
 
+// ==========================================
+// TEST CASE MANAGER & DATA STUDIO ENGINE
+// ==========================================
+const testCaseTemplates = [
+  {
+    id: 'TC-001',
+    name: 'Engine Idle Operation',
+    desc: 'Low throttle, neutral gear, minimal drivetrain resistance at nominal temperature.',
+    throttle: 0, gear: 0, load: 5, clutch: false, brake: false, ignition: true,
+    ambient: 25, wear: 10, ratio: 3.9, duration: 10, dt: 0.1, initRpm: 700,
+    status: 'Not Run', dataset: null, stats: null
+  },
+  {
+    id: 'TC-002',
+    name: 'First Gear Acceleration',
+    desc: 'Heavy throttle ramp in first gear (3.60:1) observing maximum tractive torque.',
+    throttle: 85, gear: 1, load: 25, clutch: false, brake: false, ignition: true,
+    ambient: 25, wear: 10, ratio: 3.9, duration: 10, dt: 0.1, initRpm: 850,
+    status: 'Not Run', dataset: null, stats: null
+  },
+  {
+    id: 'TC-003',
+    name: 'Gear Shift Comparison (2nd Gear)',
+    desc: 'Mid-range cruise in 2nd gear (2.10:1) with moderate dyno load.',
+    throttle: 50, gear: 2, load: 40, clutch: false, brake: false, ignition: true,
+    ambient: 25, wear: 10, ratio: 3.9, duration: 10, dt: 0.1, initRpm: 1500,
+    status: 'Not Run', dataset: null, stats: null
+  },
+  {
+    id: 'TC-004',
+    name: 'High Load Dyno (4th Direct Drive)',
+    desc: 'Near-wide-open throttle in 1.00:1 ratio with 90% dyno resistance to verify rated torque.',
+    throttle: 95, gear: 4, load: 90, clutch: false, brake: false, ignition: true,
+    ambient: 30, wear: 15, ratio: 3.9, duration: 15, dt: 0.1, initRpm: 1800,
+    status: 'Not Run', dataset: null, stats: null
+  },
+  {
+    id: 'TC-005',
+    name: 'Clutch Slip Dynamics',
+    desc: 'Throttle applied with clutch pedal disengaged, measuring rotational delta and slip RPM.',
+    throttle: 60, gear: 3, load: 50, clutch: true, brake: false, ignition: true,
+    ambient: 25, wear: 20, ratio: 3.9, duration: 10, dt: 0.1, initRpm: 1600,
+    status: 'Not Run', dataset: null, stats: null
+  },
+  {
+    id: 'TC-006',
+    name: 'Service Braking Dynamics',
+    desc: 'Engine driven in 2nd gear while service brake load is actively applied.',
+    throttle: 25, gear: 2, load: 50, clutch: false, brake: true, ignition: true,
+    ambient: 25, wear: 15, ratio: 3.9, duration: 10, dt: 0.1, initRpm: 1800,
+    status: 'Not Run', dataset: null, stats: null
+  },
+  {
+    id: 'TC-007',
+    name: 'Thermal Stabilization Transient',
+    desc: 'Extended 35s test at 80% throttle to examine coolant and exhaust first-order lag convergence.',
+    throttle: 80, gear: 3, load: 70, clutch: false, brake: false, ignition: true,
+    ambient: 35, wear: 10, ratio: 3.9, duration: 35, dt: 0.2, initRpm: 1500,
+    status: 'Not Run', dataset: null, stats: null
+  },
+  {
+    id: 'TC-008',
+    name: 'Vibration vs Mechanical Wear',
+    desc: 'Evaluation of heuristic vibration amplitude under severe 85% backlash and misalignment.',
+    throttle: 65, gear: 1, load: 60, clutch: false, brake: false, ignition: true,
+    ambient: 25, wear: 85, ratio: 3.9, duration: 12, dt: 0.1, initRpm: 1400,
+    status: 'Not Run', dataset: null, stats: null
+  },
+  {
+    id: 'TC-009',
+    name: 'Overdrive Gear Efficiency (5th Gear)',
+    desc: 'High-speed 0.80:1 overdrive highway cruise assessing mechanical losses and BSFC.',
+    throttle: 55, gear: 5, load: 35, clutch: false, brake: false, ignition: true,
+    ambient: 20, wear: 5, ratio: 3.9, duration: 10, dt: 0.1, initRpm: 2100,
+    status: 'Not Run', dataset: null, stats: null
+  },
+  {
+    id: 'TC-010',
+    name: 'High RPM Operating Envelope Limit',
+    desc: 'Full throttle exploration in neutral approaching the configured 3,600 rpm redline.',
+    throttle: 100, gear: 0, load: 0, clutch: false, brake: false, ignition: true,
+    ambient: 25, wear: 10, ratio: 3.9, duration: 10, dt: 0.1, initRpm: 1200,
+    status: 'Not Run', dataset: null, stats: null
+  }
+];
+
+let testCases = JSON.parse(JSON.stringify(testCaseTemplates));
+let activeTestId = 'TC-001';
+let selectedTestIds = new Set(['TC-001']);
+let currentTablePage = 1;
+let tablePageSize = 25;
+
+// Pure Math Single Step Calculation for Test Execution
+function computeStep(state, params, dt) {
+  const g = params.gear;
+  const load = params.load / 100;
+  const throttle = params.throttle / 100;
+  const ambient = params.ambient;
+  const wear = params.wear / 100;
+  const fd = params.ratio;
+  const gearRatio = gearRatios[g] || 0;
+  const idle = params.ignition ? 700 : 0;
+
+  // Engine RPM Lag Dynamics
+  const targetRpm = params.ignition ? Math.min(3600, idle + throttle * 2900 - load * 180) : 0;
+  state.rpm += (targetRpm - state.rpm) * (1 - Math.exp(-dt / 1.2));
+  const rpm = Math.max(0, state.rpm);
+
+  // Yanmar 2GM20F piecewise torque curve
+  const baseTorque = rpm <= 3400 ? 29.0 + Math.max(0, rpm - 700) * (4.1 / 2700) : 33.1 + (rpm - 3400) * (2.4 / 200);
+  const torque = params.ignition ? Math.max(0, baseTorque * (0.15 + 0.85 * throttle) * (1 - 0.28 * load)) : 0;
+  const powerKw = (torque * rpm) / 9549;
+
+  // Transmission Kinematics
+  const connected = params.ignition && !params.clutch && g !== 0 && !params.brake;
+  const overall = gearRatio * fd;
+  const outputRpm = connected && overall > 0 ? rpm / overall : 0;
+  const eff = Math.max(0.84, 0.97 - wear * 0.08 - (Math.abs(g) === 1 ? 0.01 : 0));
+  const outTorque = connected ? torque * overall * eff : 0;
+  const clutchSlipRpm = params.clutch && g !== 0 ? Math.abs(rpm - (outputRpm * overall)) : 0;
+  const mechLossKw = connected ? powerKw * (1 - eff) : (params.ignition ? powerKw * 0.04 : 0);
+
+  // Fuel consumption & energy
+  const bsfc = 245 + 70 * Math.pow(1 - load, 2) + 25 * Math.pow(1 - throttle, 2);
+  const fuelKgH = powerKw > 0.5 ? (powerKw * bsfc / 1000) : (params.ignition ? 0.35 : 0);
+  const fuelRateLh = fuelKgH / 0.835;
+  state.cumFuelL += (fuelRateLh / 3600) * dt;
+  const fuelHeatKw = (fuelKgH * 42.7) / 3.6;
+  const coolantHeatKw = fuelHeatKw * 0.22;
+
+  // Thermal Lag convergence
+  const coolantTarget = ambient + (params.ignition ? 22 + load * 48 + throttle * 8 + wear * 8 : 0);
+  const exhaustTarget = ambient + (params.ignition ? 100 + throttle * 330 + load * 190 + wear * 45 : 0);
+  state.coolant += (coolantTarget - state.coolant) * (1 - Math.exp(-dt / 18));
+  state.exhaust += (exhaustTarget - state.exhaust) * (1 - Math.exp(-dt / 5));
+
+  // Heuristic Vibration
+  const vib = params.ignition ? 0.5 + rpm / 2600 + load * 0.8 + wear * 4.5 + (params.clutch ? 0.5 : 0) + (Math.abs(g) === 1 ? 0.25 : 0) : 0;
+
+  const operatingState = !params.ignition ? 'Engine Shutdown' : params.clutch ? 'Clutch Disengaged' : g === 0 ? 'Neutral Idle' : params.brake ? 'Brake Applied' : 'Coupled Drive';
+
+  return {
+    rpm: +rpm.toFixed(1),
+    outputRpm: +outputRpm.toFixed(1),
+    torque: +torque.toFixed(2),
+    powerKw: +powerKw.toFixed(2),
+    fuelRateLh: +fuelRateLh.toFixed(2),
+    cumFuelL: +state.cumFuelL.toFixed(4),
+    gear: g,
+    gearRatio: +gearRatio.toFixed(2),
+    finalDrive: +fd.toFixed(2),
+    overallRatio: +(gearRatio * fd).toFixed(2),
+    outTorque: +outTorque.toFixed(1),
+    effPct: +(eff * 100).toFixed(1),
+    coolant: +state.coolant.toFixed(1),
+    exhaust: +state.exhaust.toFixed(1),
+    fuelHeatKw: +fuelHeatKw.toFixed(2),
+    coolantHeatKw: +coolantHeatKw.toFixed(2),
+    vib: +vib.toFixed(2),
+    clutchSlipRpm: +clutchSlipRpm.toFixed(1),
+    mechLossKw: +mechLossKw.toFixed(2),
+    operatingState
+  };
+}
+
+// Calculate Summary Statistics for a Completed Dataset
+function calculateStats(dataset) {
+  if (!dataset || dataset.length === 0) return null;
+  const fields = ['rpm', 'outputRpm', 'torque', 'powerKw', 'coolant', 'exhaust', 'fuelRateLh', 'vib', 'cumFuelL'];
+  const res = {};
+
+  fields.forEach(f => {
+    const vals = dataset.map(d => d[f]);
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const sum = vals.reduce((a, b) => a + b, 0);
+    const mean = sum / vals.length;
+    const std = Math.sqrt(vals.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / vals.length);
+    const finalVal = vals[vals.length - 1];
+    res[f] = { min, max, mean, std, final: finalVal };
+  });
+  return res;
+}
+
+// Run a Single Test Case Synchronously or Async
+function runTestCase(test) {
+  test.status = 'Running';
+  renderTestList();
+
+  const dt = test.dt || 0.1;
+  const totalSteps = Math.round(test.duration / dt);
+  const dataset = [];
+
+  const state = {
+    rpm: test.initRpm || 1200,
+    coolant: 75,
+    exhaust: 280,
+    cumFuelL: 0
+  };
+
+  for (let i = 0; i <= totalSteps; i++) {
+    const t = +(i * dt).toFixed(2);
+    const row = computeStep(state, test, dt);
+    row.time_s = t;
+    row.test_id = test.id;
+    dataset.push(row);
+  }
+
+  test.dataset = dataset;
+  test.stats = calculateStats(dataset);
+  test.status = 'Completed';
+  test.completedAt = new Date().toISOString();
+
+  renderTestList();
+  updateTestSuiteStats();
+  if (test.id === activeTestId) {
+    renderActiveTestExplorer();
+  }
+}
+
+// Batch Runner: Run All Tests Sequentially
+async function runAllTests() {
+  $('btnRunAll').disabled = true;
+  $('btnRunAll').innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:4px;"></div> Running...';
+  $('statBatchStatus').textContent = 'Executing Test Suite…';
+  $('statBatchStatus').style.color = 'var(--accent-teal)';
+
+  for (let i = 0; i < testCases.length; i++) {
+    const tc = testCases[i];
+    runTestCase(tc);
+    // Yield to allow UI rendering
+    await new Promise(r => setTimeout(r, 60));
+  }
+
+  $('btnRunAll').disabled = false;
+  $('btnRunAll').innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Run All Tests`;
+  $('statBatchStatus').textContent = 'All Completed';
+  $('statBatchStatus').style.color = 'var(--success)';
+
+  renderActiveTestExplorer();
+  renderComparisonChart();
+}
+
+// Render Left Column Test Cards
+function renderTestList() {
+  const container = $('testCaseList');
+  if (!container) return;
+  const query = ($('tcSearch')?.value || '').toLowerCase();
+
+  const filtered = testCases.filter(t => t.id.toLowerCase().includes(query) || t.name.toLowerCase().includes(query));
+
+  container.innerHTML = filtered.map(t => {
+    const isSelected = selectedTestIds.has(t.id);
+    const isActive = t.id === activeTestId;
+    const statusClass = t.status === 'Completed' ? 'completed' : t.status === 'Running' ? 'running' : t.status === 'Failed' ? 'failed' : 'not-run';
+
+    const avgRpm = t.stats ? `${fmt(t.stats.rpm.mean, 0)} rpm avg` : `${t.duration}s duration`;
+    const gearLabel = t.gear === 0 ? 'N' : t.gear === -1 ? 'R' : `${t.gear}G`;
+
+    return `
+      <div class="tc-card ${isActive ? 'selected' : ''}" data-id="${t.id}">
+        <div class="tc-card-header">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" class="tc-check" data-id="${t.id}" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation()">
+            <span class="tc-id-badge">${t.id}</span>
+            <span class="tc-card-title">${t.name}</span>
+          </div>
+          <span class="tc-status-tag ${statusClass}">${t.status}</span>
+        </div>
+        <div class="tc-card-desc">${t.desc}</div>
+        <div class="tc-card-metrics">
+          <span>⚙️ ${gearLabel} (${gearRatios[t.gear].toFixed(2)}:1)</span>
+          <span>⚡ ${t.throttle}% Thr</span>
+          <span>🏋️ ${t.load}% Ld</span>
+          <span>⏱️ ${avgRpm}</span>
+        </div>
+        <div class="tc-card-actions">
+          <span style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);">${t.dataset ? `${t.dataset.length} samples` : 'Unexecuted'}</span>
+          <div class="tc-action-icons">
+            <button class="btn-icon tc-btn-run" data-id="${t.id}" title="Run this test case">▶</button>
+            <button class="btn-icon tc-btn-edit" data-id="${t.id}" title="Edit parameters">✏️</button>
+            <button class="btn-icon tc-btn-dup" data-id="${t.id}" title="Duplicate test case">📋</button>
+            <button class="btn-icon tc-btn-del" data-id="${t.id}" title="Delete test case">🗑️</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Attach card event listeners
+  container.querySelectorAll('.tc-card').forEach(card => {
+    card.onclick = () => {
+      activeTestId = card.getAttribute('data-id');
+      renderTestList();
+      renderActiveTestExplorer();
+    };
+  });
+
+  container.querySelectorAll('.tc-check').forEach(ck => {
+    ck.onchange = e => {
+      const id = ck.getAttribute('data-id');
+      if (e.target.checked) selectedTestIds.add(id);
+      else selectedTestIds.delete(id);
+      renderComparisonChart();
+    };
+  });
+
+  container.querySelectorAll('.tc-btn-run').forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      const tc = testCases.find(t => t.id === btn.getAttribute('data-id'));
+      if (tc) runTestCase(tc);
+    };
+  });
+
+  container.querySelectorAll('.tc-btn-edit').forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      openEditModal(btn.getAttribute('data-id'));
+    };
+  });
+
+  container.querySelectorAll('.tc-btn-dup').forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      duplicateTestCase(btn.getAttribute('data-id'));
+    };
+  });
+
+  container.querySelectorAll('.tc-btn-del').forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      deleteTestCase(btn.getAttribute('data-id'));
+    };
+  });
+}
+
+// Update Header Statistics in Test Bench
+function updateTestSuiteStats() {
+  const total = testCases.length;
+  const completed = testCases.filter(t => t.status === 'Completed').length;
+  const totalSamples = testCases.reduce((sum, t) => sum + (t.dataset ? t.dataset.length : 0), 0);
+
+  put('statTotalTests', total);
+  put('statCompletedTests', completed);
+  put('statTotalSamples', totalSamples.toLocaleString());
+
+  // Populate active test dropdown in explorer
+  const sel = $('tcActiveSelect');
+  if (sel) {
+    sel.innerHTML = testCases.map(t => `
+      <option value="${t.id}" ${t.id === activeTestId ? 'selected' : ''}>
+        ${t.id}: ${t.name} (${t.status})
+      </option>
+    `).join('');
+  }
+}
+
+// Render Time-Series Table and Stats for the Active Test Case
+function renderActiveTestExplorer() {
+  const activeTest = testCases.find(t => t.id === activeTestId) || testCases[0];
+  if (!activeTest) return;
+
+  const dataset = activeTest.dataset || [];
+  const tbody = $('tcTableBody');
+
+  if (dataset.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="16" style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 12px;">Test Case <strong>${activeTest.id}</strong> has not been executed yet. Click "Run Test" to generate numerical time-series.</td></tr>`;
+    put('tcPaginationInfo', 'Showing 0–0 of 0 samples');
+    renderStatsView(null);
+    return;
+  }
+
+  // Pagination
+  const totalRows = dataset.length;
+  const totalPages = Math.ceil(totalRows / tablePageSize);
+  currentTablePage = Math.max(1, Math.min(currentTablePage, totalPages));
+  const start = (currentTablePage - 1) * tablePageSize;
+  const end = Math.min(start + tablePageSize, totalRows);
+  const pageRows = dataset.slice(start, end);
+
+  tbody.innerHTML = pageRows.map(r => `
+    <tr>
+      <td>${r.time_s.toFixed(2)}s</td>
+      <td>${r.operatingState}</td>
+      <td style="color: var(--accent-teal); font-weight: 700;">${fmt(r.rpm, 1)}</td>
+      <td style="color: var(--accent-blue);">${fmt(r.outputRpm, 1)}</td>
+      <td>${r.torque.toFixed(1)}</td>
+      <td>${r.powerKw.toFixed(1)}</td>
+      <td>${r.fuelRateLh.toFixed(2)}</td>
+      <td>${r.cumFuelL.toFixed(3)}</td>
+      <td>${r.gear}</td>
+      <td>${r.gearRatio.toFixed(2)}:1</td>
+      <td>${r.effPct.toFixed(1)}%</td>
+      <td style="color: var(--success);">${r.coolant.toFixed(1)}</td>
+      <td style="color: var(--warning);">${r.exhaust.toFixed(1)}</td>
+      <td>${r.vib.toFixed(2)}</td>
+      <td>${r.clutchSlipRpm.toFixed(1)}</td>
+      <td>${r.mechLossKw.toFixed(2)}</td>
+    </tr>
+  `).join('');
+
+  put('tcPaginationInfo', `Showing ${start + 1}–${end} of ${totalRows} samples (Page ${currentTablePage}/${totalPages})`);
+
+  renderStatsView(activeTest);
+}
+
+// Render Statistical Matrix in Sub-Tab C
+function renderStatsView(test) {
+  const container = $('statsCardsContainer');
+  if (!container) return;
+  if (!test || !test.stats) {
+    container.innerHTML = `<div style="grid-column: 1/-1; padding: 24px; text-align: center; color: var(--text-muted);">Execute this test case to view statistical distributions and metric bounds.</div>`;
+    put('statsTestTitle', activeTestId);
+    put('statsSampleCount', '0 Samples');
+    return;
+  }
+
+  put('statsTestTitle', `${test.id} — ${test.name}`);
+  put('statsSampleCount', `${test.dataset.length} Samples`);
+
+  const s = test.stats;
+  const cards = [
+    { title: 'Engine Speed', unit: 'RPM', data: s.rpm, color: 'var(--accent-teal)' },
+    { title: 'Gearbox Output', unit: 'RPM', data: s.outputRpm, color: 'var(--accent-blue)' },
+    { title: 'Engine Torque', unit: 'N·m', data: s.torque, color: 'var(--accent-teal)' },
+    { title: 'Shaft Brake Power', unit: 'kW', data: s.powerKw, color: 'var(--accent-blue)' },
+    { title: 'Coolant Temperature', unit: '°C', data: s.coolant, color: 'var(--success)' },
+    { title: 'Exhaust Temperature', unit: '°C', data: s.exhaust, color: 'var(--warning)' },
+    { title: 'Fuel Flow Rate', unit: 'L/h', data: s.fuelRateLh, color: 'var(--text-primary)' },
+    { title: 'Vibration Amplitude', unit: 'mm/s RMS', data: s.vib, color: '#A78BFA' }
+  ];
+
+  container.innerHTML = cards.map(c => `
+    <div class="stat-box">
+      <div class="stat-box-title">
+        <span>${c.title}</span>
+        <span style="color: ${c.color};">${c.unit}</span>
+      </div>
+      <div class="stat-row"><span>Mean Average:</span><span>${fmt(c.data.mean, 1)}</span></div>
+      <div class="stat-row"><span>Minimum:</span><span>${fmt(c.data.min, 1)}</span></div>
+      <div class="stat-row"><span>Maximum:</span><span>${fmt(c.data.max, 1)}</span></div>
+      <div class="stat-row"><span>Std Deviation:</span><span>±${fmt(c.data.std, 2)}</span></div>
+      <div class="stat-row" style="border-top: 1px solid var(--border-subtle); margin-top: 4px; padding-top: 4px;"><span>Final Reading:</span><span style="color: ${c.color}; font-weight: 700;">${fmt(c.data.final, 1)}</span></div>
+    </div>
+  `).join('');
+}
+
+// Multi-Test Overlay Comparison Chart (Canvas)
+function renderComparisonChart() {
+  const canvas = $('compareChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+
+  if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+  }
+
+  ctx.save();
+  ctx.scale(dpr, dpr);
+  const w = rect.width, h = rect.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#080C14';
+  ctx.fillRect(0, 0, w, h);
+
+  const metric = $('compareMetricSelect')?.value || 'rpm';
+  const completedTests = testCases.filter(t => selectedTestIds.has(t.id) && t.dataset && t.dataset.length > 0);
+
+  put('compareCountLabel', `${completedTests.length} tests overlaid`);
+
+  const palette = ['#22D3C5', '#60A5FA', '#FBBF24', '#34D399', '#A78BFA', '#F87171', '#F472B6', '#38BDF8', '#F59E0B', '#10B981'];
+
+  // Update Legend
+  const legend = $('compareLegend');
+  if (legend) {
+    legend.innerHTML = completedTests.map((t, i) => `
+      <div class="legend-item">
+        <span class="legend-dot" style="background: ${palette[i % palette.length]};"></span>
+        <strong style="color: #F1F5F9;">${t.id}:</strong> ${t.name}
+      </div>
+    `).join('') || '<span style="color: var(--text-muted);">No completed tests selected. Check test boxes on the left to overlay curves.</span>';
+  }
+
+  if (completedTests.length === 0) {
+    ctx.font = '12px "Inter", sans-serif';
+    ctx.fillStyle = '#64748B';
+    ctx.textAlign = 'center';
+    ctx.fillText('No completed test cases selected for comparison.', w / 2, h / 2);
+    ctx.restore();
+    return;
+  }
+
+  // Find max value across all curves
+  let maxVal = 0;
+  let maxTime = 0;
+  completedTests.forEach(t => {
+    t.dataset.forEach(d => {
+      if (d[metric] > maxVal) maxVal = d[metric];
+      if (d.time_s > maxTime) maxTime = d.time_s;
+    });
+  });
+  maxVal = Math.max(10, maxVal * 1.15);
+  maxTime = Math.max(5, maxTime);
+
+  const pad = { left: 55, right: 20, top: 20, bottom: 30 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+
+  // Grid
+  ctx.font = '10px "JetBrains Mono", monospace';
+  ctx.strokeStyle = '#1E293B';
+  ctx.fillStyle = '#64748B';
+  ctx.textAlign = 'right';
+  ctx.lineWidth = 1;
+
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (ch * i) / 4;
+    ctx.beginPath();
+    ctx.setLineDash([4, 4]);
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(w - pad.right, y);
+    ctx.stroke();
+    ctx.fillText(fmt(maxVal * (1 - i / 4), 1), pad.left - 8, y + 3);
+  }
+  ctx.setLineDash([]);
+
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 5; i++) {
+    const x = pad.left + (cw * i) / 5;
+    const tVal = (maxTime * i / 5).toFixed(1) + 's';
+    ctx.fillText(tVal, x, h - 10);
+  }
+
+  // Plot Lines
+  completedTests.forEach((t, idx) => {
+    const color = palette[idx % palette.length];
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.2;
+
+    t.dataset.forEach((d, i) => {
+      const x = pad.left + (d.time_s / maxTime) * cw;
+      const y = pad.top + ch * (1 - Math.min(maxVal, Math.max(0, d[metric])) / maxVal);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  });
+
+  ctx.restore();
+}
+
+// Modal Handlers (Create / Edit)
+function openEditModal(testId = null) {
+  const isNew = !testId;
+  $('modalTitle').textContent = isNew ? 'Create New Engineering Test Case' : `Edit Test Case ${testId}`;
+  $('modalSaveBtn').textContent = isNew ? 'Create Test Case' : 'Save Changes';
+
+  let tc = isNew ? {
+    id: `TC-${String(testCases.length + 1).padStart(3, '0')}`,
+    name: 'Custom Calibration Test',
+    desc: 'User-configured test parameter profile.',
+    throttle: 50, gear: 3, load: 50, clutch: false, brake: false, ignition: true,
+    ambient: 25, wear: 10, ratio: 3.9, duration: 10, dt: 0.1, initRpm: 1500
+  } : testCases.find(t => t.id === testId);
+
+  $('editTestId').value = tc.id;
+  $('editIdDisplay').value = tc.id;
+  $('editName').value = tc.name;
+  $('editDesc').value = tc.desc;
+  $('editThrottle').value = tc.throttle;
+  $('editGear').value = tc.gear;
+  $('editLoad').value = tc.load;
+  $('editRatio').value = tc.ratio;
+  $('editWear').value = tc.wear;
+  $('editAmbient').value = tc.ambient;
+  $('editDuration').value = tc.duration;
+  $('editDt').value = tc.dt;
+  $('editClutch').value = tc.clutch ? 'disengaged' : 'engaged';
+  $('editBrake').value = tc.brake ? 'applied' : 'released';
+  $('editInitRpm').value = tc.initRpm;
+  $('editIgnition').value = tc.ignition ? 'running' : 'stopped';
+
+  $('modalEditTest').classList.remove('hidden');
+}
+
+function saveModalTestCase() {
+  const id = $('editTestId').value;
+  let tc = testCases.find(t => t.id === id);
+  const isNew = !tc;
+
+  if (isNew) {
+    tc = { id, status: 'Not Run', dataset: null, stats: null };
+    testCases.push(tc);
+  }
+
+  tc.name = $('editName').value || 'Untitled Test';
+  tc.desc = $('editDesc').value || 'Custom test profile';
+  tc.throttle = +$('editThrottle').value;
+  tc.gear = +$('editGear').value;
+  tc.load = +$('editLoad').value;
+  tc.ratio = +$('editRatio').value;
+  tc.wear = +$('editWear').value;
+  tc.ambient = +$('editAmbient').value;
+  tc.duration = +$('editDuration').value;
+  tc.dt = +$('editDt').value;
+  tc.clutch = $('editClutch').value === 'disengaged';
+  tc.brake = $('editBrake').value === 'applied';
+  tc.initRpm = +$('editInitRpm').value;
+  tc.ignition = $('editIgnition').value === 'running';
+
+  // Invalidate previous dataset if parameters changed
+  tc.dataset = null;
+  tc.stats = null;
+  tc.status = 'Not Run';
+
+  $('modalEditTest').classList.add('hidden');
+  renderTestList();
+  updateTestSuiteStats();
+}
+
+function duplicateTestCase(id) {
+  const orig = testCases.find(t => t.id === id);
+  if (!orig) return;
+  const newId = `TC-${String(testCases.length + 1).padStart(3, '0')}`;
+  const copy = JSON.parse(JSON.stringify(orig));
+  copy.id = newId;
+  copy.name = `${orig.name} (Copy)`;
+  copy.status = 'Not Run';
+  copy.dataset = null;
+  copy.stats = null;
+  testCases.push(copy);
+  selectedTestIds.add(newId);
+  renderTestList();
+  updateTestSuiteStats();
+}
+
+function deleteTestCase(id) {
+  if (!confirm(`Are you sure you want to delete test case ${id}?`)) return;
+  testCases = testCases.filter(t => t.id !== id);
+  selectedTestIds.delete(id);
+  if (activeTestId === id) activeTestId = testCases[0]?.id || '';
+  renderTestList();
+  updateTestSuiteStats();
+  renderActiveTestExplorer();
+}
+
+function clearAllDataset() {
+  if (!confirm('Clear all recorded simulation datasets and reset test statuses to "Not Run"?')) return;
+  testCases.forEach(t => {
+    t.dataset = null;
+    t.stats = null;
+    t.status = 'Not Run';
+  });
+  renderTestList();
+  updateTestSuiteStats();
+  renderActiveTestExplorer();
+  renderComparisonChart();
+}
+
+// ==========================================
+// DATA EXPORT GENERATORS
+// ==========================================
+function exportActiveCsv() {
+  const tc = testCases.find(t => t.id === activeTestId);
+  if (!tc || !tc.dataset || tc.dataset.length === 0) {
+    alert(`Test Case ${activeTestId} has not been executed yet. Run it first to generate time-series data.`);
+    return;
+  }
+  downloadCsvFile(tc.dataset, `${tc.id}_${tc.name.replace(/[^a-zA-Z0-9]/g, '_')}_telemetry.csv`, tc);
+}
+
+function exportBatchCsv() {
+  const completed = testCases.filter(t => t.dataset && t.dataset.length > 0);
+  if (completed.length === 0) {
+    alert('No completed test cases found. Run one or more test cases before exporting.');
+    return;
+  }
+  const combined = [];
+  completed.forEach(tc => {
+    tc.dataset.forEach(row => combined.push(row));
+  });
+  downloadCsvFile(combined, `batch_powertrain_telemetry_${completed.length}_tests.csv`);
+}
+
+function downloadCsvFile(data, filename, testMeta = null) {
+  const cols = [
+    'test_id','time_s','engine_rpm','output_rpm','torque_nm','power_kw',
+    'fuel_rate_l_h','cum_fuel_l','gear','gear_ratio','overall_ratio',
+    'output_torque_nm','gearbox_eff_pct','coolant_temp_c','exhaust_temp_c',
+    'fuel_heat_kw','coolant_heat_kw','vibration_rms_mm_s','clutch_slip_rpm','mech_loss_kw','operating_state'
+  ];
+
+  let csvContent = '';
+  if (testMeta) {
+    csvContent += `# Transmission Dynamics Studio Telemetry Dataset\n`;
+    csvContent += `# Test ID: ${testMeta.id}\n`;
+    csvContent += `# Test Name: ${testMeta.name}\n`;
+    csvContent += `# Description: ${testMeta.desc}\n`;
+    csvContent += `# Inputs: Throttle=${testMeta.throttle}%, Gear=${testMeta.gear}, Load=${testMeta.load}%, Ambient=${testMeta.ambient}C, Wear=${testMeta.wear}%, FinalDrive=${testMeta.ratio}\n`;
+    csvContent += `# Timestamp: ${testMeta.completedAt || new Date().toISOString()}\n`;
+  }
+  csvContent += cols.join(',') + '\n';
+
+  data.forEach(d => {
+    const row = [
+      d.test_id || testMeta?.id || '',
+      d.time_s, d.rpm, d.outputRpm, d.torque, d.powerKw,
+      d.fuelRateLh, d.cumFuelL, d.gear, d.gearRatio, d.overallRatio,
+      d.outTorque, d.effPct, d.coolant, d.exhaust,
+      d.fuelHeatKw, d.coolantHeatKw, d.vib, d.clutchSlipRpm, d.mechLossKw,
+      `"${d.operatingState}"`
+    ];
+    csvContent += row.join(',') + '\n';
+  });
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportJsonDataset() {
+  const completed = testCases.filter(t => t.dataset && t.dataset.length > 0);
+  const payload = {
+    metadata: {
+      application: 'Transmission Dynamics Studio PRO',
+      version: '2.5.0',
+      exportedAt: new Date().toISOString(),
+      engineBenchmark: {
+        model: 'Yanmar 2GM20F Marine Diesel',
+        displacement_L: 0.636,
+        bore_stroke_mm: '75.0 x 72.0',
+        compressionRatio: 23.0,
+        continuousRating: '11.8 kW @ 3400 rpm',
+        oneHourRating: '13.4 kW @ 3600 rpm'
+      },
+      provenanceClassification: {
+        engineSpeed: 'Direct Calculated (Euler step)',
+        shaftPower: 'Direct Calculated (Torque * Speed / 9549)',
+        gearboxOutputSpeed: 'Direct Calculated (Rigid Kinematic Mesh)',
+        fuelConsumption: 'Estimated Model (BSFC quadratic approximation)',
+        temperatures: 'Estimated Model (Lumped first-order transient)',
+        vibration: 'Estimated Heuristic Trend'
+      }
+    },
+    testSuiteSummary: {
+      totalTestCases: testCases.length,
+      completedCases: completed.length
+    },
+    testCases: testCases.map(tc => ({
+      id: tc.id,
+      name: tc.name,
+      description: tc.desc,
+      parameters: {
+        throttle_pct: tc.throttle,
+        gear: tc.gear,
+        load_pct: tc.load,
+        clutch_disengaged: tc.clutch,
+        brake_applied: tc.brake,
+        ignition: tc.ignition,
+        ambient_c: tc.ambient,
+        wear_pct: tc.wear,
+        final_drive_ratio: tc.ratio,
+        duration_s: tc.duration,
+        time_step_dt_s: tc.dt,
+        init_rpm: tc.initRpm
+      },
+      status: tc.status,
+      completedAt: tc.completedAt || null,
+      summaryStatistics: tc.stats || null,
+      timeSeriesData: tc.dataset || []
+    }))
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `powertrain_engineering_dataset_${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportExcelWorkbook() {
+  const completed = testCases.filter(t => t.dataset && t.dataset.length > 0);
+  if (completed.length === 0) {
+    alert('Please execute at least one test case before exporting to Excel.');
+    return;
+  }
+
+  if (window.XLSX) {
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1: Executive Summary & Test Matrix
+    const summaryData = completed.map(tc => ({
+      'Test ID': tc.id,
+      'Test Name': tc.name,
+      'Throttle (%)': tc.throttle,
+      'Gear': tc.gear,
+      'Ratio': gearRatios[tc.gear] || 0,
+      'Load (%)': tc.load,
+      'Wear (%)': tc.wear,
+      'Duration (s)': tc.duration,
+      'Mean RPM': tc.stats ? Math.round(tc.stats.rpm.mean) : '—',
+      'Mean Power (kW)': tc.stats ? tc.stats.powerKw.mean.toFixed(2) : '—',
+      'Max Torque (N·m)': tc.stats ? tc.stats.torque.max.toFixed(2) : '—',
+      'Final Coolant (°C)': tc.stats ? tc.stats.coolant.final.toFixed(1) : '—',
+      'Cumul Fuel (L)': tc.stats ? tc.stats.cumFuelL.final.toFixed(4) : '—'
+    }));
+    const wsSummary = XLSX.utils.json_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary Matrix');
+
+    // Individual Time Series Sheets for each completed test (up to 10)
+    completed.slice(0, 10).forEach(tc => {
+      const rows = tc.dataset.map(d => ({
+        'Time (s)': d.time_s,
+        'Engine RPM': d.rpm,
+        'Output RPM': d.outputRpm,
+        'Torque (N·m)': d.torque,
+        'Power (kW)': d.powerKw,
+        'Fuel Rate (L/h)': d.fuelRateLh,
+        'Cumul Fuel (L)': d.cumFuelL,
+        'Gear Ratio': d.gearRatio,
+        'Efficiency (%)': d.effPct,
+        'Coolant (°C)': d.coolant,
+        'Exhaust (°C)': d.exhaust,
+        'Vibration (mm/s)': d.vib,
+        'Clutch Slip (RPM)': d.clutchSlipRpm,
+        'Operating State': d.operatingState
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      XLSX.utils.book_append_sheet(wb, ws, tc.id);
+    });
+
+    XLSX.writeFile(wb, `transmission_test_suite_workbook.xlsx`);
+  } else {
+    // Fallback: download batch CSV
+    exportBatchCsv();
+  }
+}
+
+// Navigation Tabs Switcher
+$('tabLiveBtn').onclick = () => {
+  $('tabLiveBtn').classList.add('active');
+  $('tabTestBtn').classList.remove('active');
+  $('sectionLive').classList.remove('hidden');
+  $('sectionTest').classList.add('hidden');
+};
+
+$('tabTestBtn').onclick = () => {
+  $('tabTestBtn').classList.add('active');
+  $('tabLiveBtn').classList.remove('active');
+  $('sectionTest').classList.remove('hidden');
+  $('sectionLive').classList.add('hidden');
+  renderActiveTestExplorer();
+  renderComparisonChart();
+};
+
+// Sub-Tab Switcher in Test Bench
+document.querySelectorAll('.tc-sub-tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tc-sub-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const target = tab.getAttribute('data-sub');
+
+    $('subContentTable').classList.toggle('hidden', target !== 'table');
+    $('subContentCompare').classList.toggle('hidden', target !== 'compare');
+    $('subContentStats').classList.toggle('hidden', target !== 'stats');
+    $('subContentExport').classList.toggle('hidden', target !== 'export');
+
+    if (target === 'compare') renderComparisonChart();
+  };
+});
+
+// Test Suite Event Listeners
+$('btnRunAll').onclick = runAllTests;
+$('btnNewTest').onclick = () => openEditModal(null);
+$('btnClearDataset').onclick = clearAllDataset;
+
+$('tcSearch').oninput = renderTestList;
+
+$('btnSelectAllTests').onclick = () => {
+  if (selectedTestIds.size === testCases.length) selectedTestIds.clear();
+  else testCases.forEach(t => selectedTestIds.add(t.id));
+  renderTestList();
+  renderComparisonChart();
+};
+
+$('tcActiveSelect').onchange = e => {
+  activeTestId = e.target.value;
+  renderTestList();
+  renderActiveTestExplorer();
+};
+
+$('tcPageSize').onchange = e => {
+  tablePageSize = +e.target.value;
+  currentTablePage = 1;
+  renderActiveTestExplorer();
+};
+
+$('tcPagePrev').onclick = () => {
+  if (currentTablePage > 1) {
+    currentTablePage--;
+    renderActiveTestExplorer();
+  }
+};
+
+$('tcPageNext').onclick = () => {
+  currentTablePage++;
+  renderActiveTestExplorer();
+};
+
+$('compareMetricSelect').onchange = renderComparisonChart;
+
+// Export buttons
+$('btnExportActiveCsv').onclick = exportActiveCsv;
+$('btnExportBatchCsv').onclick = exportBatchCsv;
+$('btnExportJson').onclick = exportJsonDataset;
+$('btnExportExcel').onclick = exportExcelWorkbook;
+
+// Modal Close & Save
+$('modalCloseBtn').onclick = () => $('modalEditTest').classList.add('hidden');
+$('modalCancelBtn').onclick = () => $('modalEditTest').classList.add('hidden');
+$('modalSaveBtn').onclick = saveModalTestCase;
+
+// Initialize Test Suite & UI
 initThreeModel();
+renderTestList();
+updateTestSuiteStats();
 compute.rpm = 1500;
 update(0.05);
 requestAnimationFrame(loop);
