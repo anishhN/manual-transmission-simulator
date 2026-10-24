@@ -1595,9 +1595,9 @@ footer {
             <div class="slider-card">
               <div class="slider-header">
                 <span class="slider-title">Generator Electrical Load</span>
-                <span class="slider-readout" id="loadVal">50%</span>
+                <span class="slider-readout" id="loadVal">30%</span>
               </div>
-              <input id="load" type="range" min="0" max="100" value="50">
+              <input id="load" type="range" min="0" max="100" value="30">
             </div>
 
             <div class="slider-card">
@@ -2288,7 +2288,7 @@ const physicalParams = {
   radCoeff: 0.38            // kW/K
 };
 
-const defaults = { gear: '3', load: 50, throttle: 35, ambient: 25, wear: 10, ratio: 3.9 };
+const defaults = { gear: '3', load: 30, throttle: 35, ambient: 25, wear: 10, ratio: 3.9 };
 
 // Master Authoritative Live State
 const liveState = {
@@ -2301,6 +2301,7 @@ const liveState = {
   powerKw: 0,
   govIntegral: 0,
   stalled: false,
+  stallTimer: 0,
   ignition: true,
 
   // Transmission Input Shaft (Clutch driven)
@@ -2432,6 +2433,7 @@ function advancePhysicsStep(dt) {
   // 3. Engine Torque Curve & Rev Limiter (5,400 RPM redline)
   if (!liveState.ignition || liveState.stalled) {
     liveState.torqueInd = 0;
+    liveState.govTorque = 0;
     liveState.govIntegral = 0;
     liveState.torqueFric = 5.5 + 0.003 * liveState.rpm;
   } else {
@@ -2445,21 +2447,22 @@ function advancePhysicsStep(dt) {
     // Piecewise continuous diesel torque curve (peak ~52 N·m @ 2,800 RPM)
     const r = Math.max(0, Math.min(physicalParams.maxRpm, liveState.rpm));
     const curveTorque = 36.0 + 16.0 * Math.sin((r / physicalParams.maxRpm) * Math.PI);
-    liveState.torqueInd = curveTorque * (0.08 + 0.92 * effThrottle) * (1 - wear * 0.10);
+    const throttleTorque = curveTorque * (0.08 + 0.92 * effThrottle) * (1 - wear * 0.10);
 
     // Mechanical engine friction
     liveState.torqueFric = 4.2 + 0.0018 * r + 0.0000004 * Math.pow(r, 2);
 
-    // Idle speed governor regulating toward 1,000 RPM when unloaded
+    // All-speed anti-stall & idle governor regulating toward 1,000 RPM
     let govTorque = 0;
-    if (liveState.rpm < physicalParams.idleRpm + 150 && effThrottle < 0.12) {
+    if (liveState.rpm < physicalParams.idleRpm + 100) {
       const err = physicalParams.idleRpm - liveState.rpm;
-      liveState.govIntegral = Math.max(0, Math.min(25, liveState.govIntegral + err * dt * 0.08));
-      govTorque = Math.max(0, err * 0.15 + liveState.govIntegral);
+      liveState.govIntegral = Math.max(0, Math.min(45, (liveState.govIntegral || 0) + err * dt * 0.25));
+      govTorque = Math.max(0, err * 0.25 + liveState.govIntegral);
     } else {
-      liveState.govIntegral = Math.max(0, liveState.govIntegral - dt * 2.0);
+      liveState.govIntegral = Math.max(0, (liveState.govIntegral || 0) - dt * 2.0);
     }
     liveState.govTorque = govTorque;
+    liveState.torqueInd = Math.min(curveTorque * 1.15, Math.max(throttleTorque, throttleTorque + govTorque));
   }
 
   // 4. Generator Shaft & Electrical Load Dynamics
@@ -2467,16 +2470,28 @@ function advancePhysicsStep(dt) {
   liveState.genRpm = (liveState.genOmega * 60) / (2 * Math.PI);
   liveState.genFreq = (physicalParams.genPoles * Math.max(0, liveState.genRpm)) / 120; // 4-pole synchronous: 50 Hz @ 1500 RPM
 
-  const ratedKw = physicalParams.genRatedPower;
-  const demKw = loadDemand * ratedKw;
-  const speedRatio = Math.max(0, Math.min(1.0, liveState.genRpm / 1200));
-  liveState.genElecKw = demKw * speedRatio;
-  liveState.genEff = Math.max(0.82, Math.min(0.94, 0.92 * (1 - 0.08 * Math.pow(1 - liveState.genElecKw / ratedKw, 2))));
-  liveState.genMechKw = liveState.genElecKw > 0 ? (liveState.genElecKw / liveState.genEff) + 0.12 * (liveState.genRpm / 1500) : 0;
-  liveState.genTorque = liveState.genMechKw > 0 ? (liveState.genMechKw * 1000) / Math.max(1.0, liveState.genOmega) : 0;
+  // Automatic Voltage Regulation (AVR) with Under-Frequency Roll-Off (UFRO knee at 47.5 Hz)
+  let vFactor = 0;
+  if (liveState.genFreq >= 47.5) {
+    vFactor = 1.0;
+  } else if (liveState.genFreq >= 5.0) {
+    vFactor = liveState.genFreq / 50.0;
+  } else {
+    vFactor = 0;
+  }
+  liveState.genVoltage = 400.0 * vFactor;
 
-  // Automatic Voltage Regulation (AVR)
-  liveState.genVoltage = liveState.genRpm > 80 ? 400.0 * Math.min(1.05, Math.max(0.1, liveState.genRpm / 1500)) : 0;
+  const ratedKw = physicalParams.genRatedPower;
+  const demElecKw = (loadDemand * ratedKw) * Math.pow(vFactor, 2);
+  const approxDeliveredKw = Math.max(0, liveState.torqueBrake || 0) * (liveState.rpm / 9549.3) * transEff * 0.92;
+  const availKw = Math.max(demElecKw * 0.5, approxDeliveredKw + 1.5);
+  liveState.genElecKw = (gRatio !== 0 && liveState.clutchFactor > 0.1) ? Math.min(demElecKw, availKw) : 0;
+
+  liveState.genEff = liveState.genElecKw > 0 
+    ? Math.max(0.82, Math.min(0.94, 0.92 * (1 - 0.08 * Math.pow(1 - Math.min(1.0, liveState.genElecKw / ratedKw), 2)))) 
+    : 0.85;
+  liveState.genMechKw = liveState.genElecKw > 0 ? (liveState.genElecKw / liveState.genEff) : 0;
+  liveState.genTorque = liveState.genMechKw > 0 ? (liveState.genMechKw * 1000) / Math.max(0.5, liveState.genOmega) : 0;
   liveState.genCurrent = liveState.genVoltage > 25 ? (liveState.genElecKw * 1000) / (Math.sqrt(3) * liveState.genVoltage * 0.85) : 0;
 
   // Reflected torque on output countershaft
@@ -2494,26 +2509,38 @@ function advancePhysicsStep(dt) {
     : 0.08;
   const T_load_in = gRatio !== 0 ? T_res_out / (gRatio * transEff) : 0;
 
-  const isLocked = liveState.clutchFactor >= 0.98 && liveState.shiftState === 'LOCKED' && liveState.clutchSlipRpm < 15;
+  const isLocked = liveState.clutchFactor >= 0.95 && liveState.shiftState === 'LOCKED' && liveState.clutchSlipRpm < 25;
   liveState.clutchLocked = isLocked;
 
   // 6. Connected Rotational Equations of Motion Integration
-  if (isLocked && gRatio !== 0) {
-    // Single connected degree of freedom:
-    const J_total = physicalParams.inertiaEng + J_dt_in;
-    const T_net = (liveState.torqueInd + liveState.govTorque) - liveState.torqueFric - T_load_in;
-    const dOmegaDt = T_net / J_total;
-    liveState.omega = Math.max(0, liveState.omega + dOmegaDt * dt);
-    liveState.inOmega = liveState.omega;
-    liveState.outOmega = liveState.inOmega / gRatio;
-    liveState.clutchTorque = T_load_in;
+  if (isLocked) {
+    if (gRatio !== 0) {
+      // Single connected degree of freedom:
+      const J_total = physicalParams.inertiaEng + J_dt_in;
+      const T_net = liveState.torqueInd - liveState.torqueFric - T_load_in;
+      const dOmegaDt = T_net / J_total;
+      liveState.omega = Math.max(0, liveState.omega + dOmegaDt * dt);
+      liveState.inOmega = liveState.omega;
+      liveState.outOmega = liveState.inOmega / gRatio;
+      liveState.clutchTorque = T_load_in;
+    } else {
+      // In neutral with clutch engaged
+      const J_total = physicalParams.inertiaEng + 0.08;
+      const T_net = liveState.torqueInd - liveState.torqueFric - 0.5 * Math.tanh(liveState.inOmega / 0.5);
+      const dOmegaDt = T_net / J_total;
+      liveState.omega = Math.max(0, liveState.omega + dOmegaDt * dt);
+      liveState.inOmega = liveState.omega;
+      const dOmegaOut = (-T_res_out) / physicalParams.inertiaDrive;
+      liveState.outOmega = Math.max(0, liveState.outOmega + dOmegaOut * dt);
+      liveState.clutchTorque = 0.5 * Math.tanh(liveState.inOmega / 0.5);
+    }
   } else {
-    // Two independent shafts coupled by equal & opposite Coulomb slip torque:
-    const slipTorque = Math.max(-clutchCap, Math.min(clutchCap, deltaOmega * 35.0));
+    // Two independent shafts coupled by Coulomb slip torque:
+    const slipTorque = clutchCap * Math.tanh(deltaOmega / 1.5);
     liveState.clutchTorque = slipTorque;
 
     // Engine crankshaft acceleration
-    const dOmegaEng = ((liveState.torqueInd + liveState.govTorque) - liveState.torqueFric - slipTorque) / physicalParams.inertiaEng;
+    const dOmegaEng = (liveState.torqueInd - liveState.torqueFric - slipTorque) / physicalParams.inertiaEng;
     liveState.omega = Math.max(0, liveState.omega + dOmegaEng * dt);
 
     // Driveline input & output shaft acceleration
@@ -2537,10 +2564,18 @@ function advancePhysicsStep(dt) {
   liveState.genOmega = liveState.outOmega * fdRatio;
   liveState.genRpm = (liveState.genOmega * 60) / (2 * Math.PI);
 
-  // Realistic engine stall check (< 350 RPM under load)
-  if (liveState.ignition && !liveState.stalled && liveState.rpm < 350 && (T_load_in > 14 || liveState.brakeFactor > 0.45)) {
-    liveState.stalled = true;
-    liveState.ignition = false;
+  // Realistic engine stall check: sustained below 220 RPM under heavy load or severe braking
+  if (liveState.ignition && !liveState.stalled) {
+    if (liveState.rpm < 220 && (liveState.brakeFactor > 0.65 || T_load_in > 45)) {
+      liveState.stallTimer = (liveState.stallTimer || 0) + dt;
+      if (liveState.stallTimer > 0.4) {
+        liveState.stalled = true;
+        liveState.ignition = false;
+        liveState.stallTimer = 0;
+      }
+    } else {
+      liveState.stallTimer = 0;
+    }
   }
 
   // 7. Shaft Powers (P = T * omega / 9549.3)
@@ -2602,29 +2637,44 @@ function computeTransientStep(state, params, dt, t) {
     else if (state.rpm > physicalParams.maxRpm - 150) effThrottle *= (physicalParams.maxRpm - state.rpm) / 150;
     const r = Math.max(0, Math.min(physicalParams.maxRpm, state.rpm));
     const curveTorque = 36.0 + 16.0 * Math.sin((r / physicalParams.maxRpm) * Math.PI);
-    torqueInd = curveTorque * (0.08 + 0.92 * effThrottle) * (1 - wear * 0.10);
+    const throttleTorque = curveTorque * (0.08 + 0.92 * effThrottle) * (1 - wear * 0.10);
 
-    if (state.rpm < physicalParams.idleRpm + 150 && effThrottle < 0.12) {
+    // All-speed anti-stall & idle governor
+    if (state.rpm < physicalParams.idleRpm + 100) {
       const err = physicalParams.idleRpm - state.rpm;
-      state.govIntegral = Math.max(0, Math.min(25, (state.govIntegral || 0) + err * dt * 0.08));
-      govTorque = Math.max(0, err * 0.15 + state.govIntegral);
+      state.govIntegral = Math.max(0, Math.min(45, (state.govIntegral || 0) + err * dt * 0.25));
+      govTorque = Math.max(0, err * 0.25 + state.govIntegral);
+    } else {
+      state.govIntegral = Math.max(0, (state.govIntegral || 0) - dt * 2.0);
     }
+    torqueInd = Math.min(curveTorque * 1.15, Math.max(throttleTorque, throttleTorque + govTorque));
   }
 
   const torqueFric = params.ignition ? (4.2 + 0.0018 * state.rpm + 0.0000004 * Math.pow(state.rpm, 2)) : (5.5 + 0.003 * state.rpm);
+  const estTorque = params.ignition ? Math.max(0, torqueInd - torqueFric) : 0;
+  const estPowerKw = (estTorque * state.rpm) / 9549.3;
 
-  // Generator calculations
+  // Generator calculations with AVR UFRO and energy conservation
   state.genOmega = state.outOmega * fdRatio;
   const genRpm = (state.genOmega * 60) / (2 * Math.PI);
   const genFreq = (physicalParams.genPoles * Math.max(0, genRpm)) / 120;
+
+  let vFactor = 0;
+  if (genFreq >= 47.5) vFactor = 1.0;
+  else if (genFreq >= 5.0) vFactor = genFreq / 50.0;
+  else vFactor = 0;
+
+  const genVoltage = 400.0 * vFactor;
   const ratedKw = physicalParams.genRatedPower;
-  const demKw = loadDemand * ratedKw;
-  const speedRatio = Math.max(0, Math.min(1.0, genRpm / 1200));
-  const genElecKw = demKw * speedRatio;
-  const genEff = Math.max(0.82, Math.min(0.94, 0.92 * (1 - 0.08 * Math.pow(1 - genElecKw / ratedKw, 2))));
-  const genMechKw = genElecKw > 0 ? (genElecKw / genEff) + 0.12 * (genRpm / 1500) : 0;
-  const genTorque = genMechKw > 0 ? (genMechKw * 1000) / Math.max(1.0, state.genOmega) : 0;
-  const genVoltage = genRpm > 80 ? 400.0 * Math.min(1.05, Math.max(0.1, genRpm / 1500)) : 0;
+  const demElecKw = (loadDemand * ratedKw) * Math.pow(vFactor, 2);
+  const availKw = estPowerKw * transEff * 0.92;
+  const genElecKw = (clutchFactor > 0.1 && gRatio !== 0) ? Math.min(demElecKw, availKw) : 0;
+
+  const genEff = genElecKw > 0 
+    ? Math.max(0.82, Math.min(0.94, 0.92 * (1 - 0.08 * Math.pow(1 - Math.min(1.0, genElecKw / ratedKw), 2)))) 
+    : 0.85;
+  const genMechKw = genElecKw > 0 ? (genElecKw / genEff) : 0;
+  const genTorque = genMechKw > 0 ? (genMechKw * 1000) / Math.max(0.5, state.genOmega) : 0;
   const genCurrent = genVoltage > 25 ? (genElecKw * 1000) / (Math.sqrt(3) * genVoltage * 0.85) : 0;
 
   const T_gen_refl = (genTorque * fdRatio) / transEff;
@@ -2636,16 +2686,26 @@ function computeTransientStep(state, params, dt, t) {
   const J_dt_in = gRatio !== 0 ? (physicalParams.inertiaDrive / Math.pow(gRatio, 2)) + (physicalParams.inertiaGen * Math.pow(fdRatio / gRatio, 2)) : 0.08;
   const T_load_in = gRatio !== 0 ? T_res_out / (gRatio * transEff) : 0;
 
-  if (clutchFactor >= 0.98 && gRatio !== 0) {
-    const J_total = physicalParams.inertiaEng + J_dt_in;
-    const T_net = (torqueInd + govTorque) - torqueFric - T_load_in;
-    const dOmegaDt = T_net / J_total;
-    state.omega = Math.max(0, state.omega + dOmegaDt * dt);
-    state.inOmega = state.omega;
-    state.outOmega = state.inOmega / gRatio;
+  if (clutchFactor >= 0.95) {
+    if (gRatio !== 0) {
+      const J_total = physicalParams.inertiaEng + J_dt_in;
+      const T_net = torqueInd - torqueFric - T_load_in;
+      const dOmegaDt = T_net / J_total;
+      state.omega = Math.max(0, state.omega + dOmegaDt * dt);
+      state.inOmega = state.omega;
+      state.outOmega = state.inOmega / gRatio;
+    } else {
+      const J_total = physicalParams.inertiaEng + 0.08;
+      const T_net = torqueInd - torqueFric - 0.5 * Math.tanh(state.inOmega / 0.5);
+      const dOmegaDt = T_net / J_total;
+      state.omega = Math.max(0, state.omega + dOmegaDt * dt);
+      state.inOmega = state.omega;
+      const dOmegaOut = (-T_res_out) / physicalParams.inertiaDrive;
+      state.outOmega = Math.max(0, state.outOmega + dOmegaOut * dt);
+    }
   } else {
-    const slipTorque = Math.max(-clutchCap, Math.min(clutchCap, deltaOmega * 35.0));
-    const dOmegaEng = ((torqueInd + govTorque) - torqueFric - slipTorque) / physicalParams.inertiaEng;
+    const slipTorque = clutchCap * Math.tanh(deltaOmega / 1.5);
+    const dOmegaEng = (torqueInd - torqueFric - slipTorque) / physicalParams.inertiaEng;
     state.omega = Math.max(0, state.omega + dOmegaEng * dt);
     if (gRatio !== 0) {
       const dOmegaIn = (slipTorque - T_load_in) / J_dt_in;
@@ -2856,7 +2916,7 @@ function renderLiveUI() {
   // Engine Ignition Display
   put('ignitionReadout', !s.ignition ? 'Stopped' : s.stalled ? 'Stalled' : 'Running');
   $('ignitionReadout').style.color = s.ignition ? 'var(--success)' : 'var(--critical)';
-  put('ignitionText', !s.ignition ? (s.stalled ? 'Engine Stalled (< 350 RPM under load)' : 'Engine Shutdown') : (s.rpm < physicalParams.idleRpm + 100 && val('throttle') < 12 ? 'Governor Active · 1,000 RPM Idle' : 'Operational'));
+  put('ignitionText', !s.ignition ? (s.stalled ? 'Engine Stalled (< 220 RPM under sustained load)' : 'Engine Shutdown') : (s.rpm < physicalParams.idleRpm + 100 ? 'Governor Active · 1,000 RPM Idle' : 'Operational'));
   $('ignitionBtn').textContent = s.ignition ? 'Stop Engine' : 'Start Engine';
   $('ignitionBtn').classList.toggle('active', s.ignition);
 
@@ -4401,10 +4461,18 @@ $('ignitionBtn').onclick = () => {
   liveState.ignition = !liveState.ignition;
   if (!liveState.ignition) {
     liveState.stalled = false;
+    liveState.stallTimer = 0;
   } else {
     liveState.stalled = false;
+    liveState.stallTimer = 0;
+    liveState.govIntegral = 0;
     liveState.omega = (physicalParams.idleRpm * 2 * Math.PI) / 60;
     liveState.rpm = physicalParams.idleRpm;
+    liveState.inOmega = liveState.omega;
+    const gRatio = gearRatios[liveState.currentGear] || 0;
+    liveState.outOmega = gRatio !== 0 ? liveState.inOmega / gRatio : 0;
+    liveState.genOmega = liveState.outOmega * val('ratio');
+    liveState.genRpm = (liveState.genOmega * 60) / (2 * Math.PI);
   }
 };
 
